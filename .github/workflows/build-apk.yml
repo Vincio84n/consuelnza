@@ -7,6 +7,9 @@ on:
     paths: ['VgdV_Card/**', '.github/workflows/build-apk.yml']
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,3 +31,13 @@ jobs:
           path: |
             VgdV_Card/app/build/outputs/apk/debug/*.apk
             VgdV_Card/app/build/outputs/apk/release/*.apk
+      - name: Pubblica APK come Release scaricabile
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp VgdV_Card/app/build/outputs/apk/release/app-release.apk VgdV-Card.apk
+          gh release delete latest --yes --cleanup-tag -R "$GITHUB_REPOSITORY" || true
+          gh release create latest VgdV-Card.apk -R "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" --title "VgdV Card (ultima build)" \
+            --notes "APK da installare su Android. Build ${GITHUB_SHA::7}."
