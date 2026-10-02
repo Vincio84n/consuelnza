@@ -48,10 +48,12 @@ fun SettingsScreen(vm: AppViewModel) {
             when (s.provider) {
                 Provider.GEMINI -> {
                     Secret("Chiave API Gemini (aistudio.google.com)", s.geminiKey) { vm.updateSettings(s.copy(geminiKey = it)) }
+                    PasteKey { vm.updateSettings(s.copy(geminiKey = it)) }
                     Plain("Modello Gemini", s.geminiModel) { vm.updateSettings(s.copy(geminiModel = it)) }
                 }
                 Provider.NVIDIA -> {
-                    Secret("Chiave API NVIDIA (build.nvidia.com)", s.nvidiaKey) { vm.updateSettings(s.copy(nvidiaKey = it)) }
+                    Secret("Chiave API NVIDIA (nvapi-…)", s.nvidiaKey) { vm.updateSettings(s.copy(nvidiaKey = it)) }
+                    PasteKey { vm.updateSettings(s.copy(nvidiaKey = it)) }
                     Plain("Modello", s.nvidiaModel) { vm.updateSettings(s.copy(nvidiaModel = it)) }
                     Plain("Base URL (OpenAI-compatibile)", s.nvidiaBaseUrl) { vm.updateSettings(s.copy(nvidiaBaseUrl = it)) }
                 }
@@ -74,9 +76,18 @@ fun SettingsScreen(vm: AppViewModel) {
             Text("Formato nome contatto", style = MaterialTheme.typography.titleSmall)
             Picker(s.nameFormat.label, NameFormat.entries, { it.label }, { vm.updateSettings(s.copy(nameFormat = it)) })
 
-            Text("VgdV Card 0.1.0", style = MaterialTheme.typography.bodySmall)
+            Text("VgdV Card 0.2.0", style = MaterialTheme.typography.bodySmall)
         }
     }
+}
+
+/** Incolla la chiave dagli appunti con un tap (più comodo che digitarla). */
+@Composable
+private fun PasteKey(onKey: (String) -> Unit) {
+    val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
+    androidx.compose.material3.OutlinedButton(onClick = {
+        clipboard.getText()?.text?.trim()?.takeIf { it.isNotEmpty() }?.let(onKey)
+    }) { Text("📋 Incolla chiave dagli appunti") }
 }
 
 @Composable

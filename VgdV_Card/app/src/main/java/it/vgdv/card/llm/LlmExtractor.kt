@@ -103,7 +103,13 @@ $ocrText
         val body = JSONObject()
             .put("model", s.nvidiaModel)
             .put("temperature", 0)
-            .put("max_tokens", 1024)
+            .put("max_tokens", 4096)
+            .apply {
+                // Nemotron è un modello "reasoning": disattiviamo il ragionamento per avere solo il JSON, più veloce.
+                if (s.nvidiaModel.contains("nemotron", ignoreCase = true)) {
+                    put("chat_template_kwargs", JSONObject().put("enable_thinking", false))
+                }
+            }
             .put(
                 "messages", JSONArray()
                     .put(JSONObject().put("role", "system").put("content", "Rispondi solo con JSON valido."))
@@ -115,8 +121,9 @@ $ocrText
             .post(body.toString().toRequestBody(jsonType))
             .build()
         val resp = execute(req)
-        return JSONObject(resp).getJSONArray("choices").getJSONObject(0)
-            .getJSONObject("message").getString("content")
+        val msg = JSONObject(resp).getJSONArray("choices").getJSONObject(0).getJSONObject("message")
+        return msg.optString("content").takeUnless { it.isBlank() || it == "null" }
+            ?: error("risposta vuota dal modello")
     }
 
     private fun execute(req: Request): String = http.newCall(req).execute().use { r ->
@@ -125,7 +132,9 @@ $ocrText
         text
     }
 
-    private fun parseJson(raw: String, groups: List<String>): CardData {
+    private fun parseJson(rawText: String, groups: List<String>): CardData {
+        // Rimuove eventuali blocchi di ragionamento <think>...</think> prima del JSON.
+        val raw = rawText.replace(Regex("(?s)<think>.*?</think>"), "")
         val start = raw.indexOf('{')
         val end = raw.lastIndexOf('}')
         require(start >= 0 && end > start) { "risposta non JSON" }

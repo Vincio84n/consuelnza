@@ -19,11 +19,11 @@ enum class NameFormat(val label: String) {
 }
 
 data class AppSettings(
-    val provider: Provider = Provider.GEMINI,
+    val provider: Provider = Provider.NVIDIA,
     val geminiKey: String = "",
     val geminiModel: String = "gemini-2.5-flash",
     val nvidiaKey: String = "",
-    val nvidiaModel: String = "meta/llama-3.3-70b-instruct",
+    val nvidiaModel: String = "nvidia/nemotron-3-super-120b-a12b",
     val nvidiaBaseUrl: String = "https://integrate.api.nvidia.com/v1",
     val nameFormat: NameFormat = NameFormat.FIRST_LAST,
     val accountName: String = "",
