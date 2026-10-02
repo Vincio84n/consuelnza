@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
+import it.vgdv.card.AppInfo
 import it.vgdv.card.AppViewModel
 import it.vgdv.card.Screen
 import it.vgdv.card.data.Provider
@@ -100,6 +101,10 @@ fun HomeScreen(vm: AppViewModel) {
                 )
             }
             if (vm.status.isNotBlank()) Text(vm.status, style = MaterialTheme.typography.bodySmall)
+            Spacer(Modifier.weight(1f))
+            androidx.compose.material3.TextButton(onClick = { vm.screen = Screen.SETTINGS }) {
+                Text("VgdV Card v${AppInfo.versionName(activity)} · Novità", style = MaterialTheme.typography.bodySmall)
+            }
         }
     }
 }

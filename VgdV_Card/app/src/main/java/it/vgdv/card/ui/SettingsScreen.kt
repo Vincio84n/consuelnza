@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import it.vgdv.card.AppInfo
 import it.vgdv.card.AppViewModel
 import it.vgdv.card.Screen
 import it.vgdv.card.contacts.AccountInfo
@@ -76,7 +77,14 @@ fun SettingsScreen(vm: AppViewModel) {
             Text("Formato nome contatto", style = MaterialTheme.typography.titleSmall)
             Picker(s.nameFormat.label, NameFormat.entries, { it.label }, { vm.updateSettings(s.copy(nameFormat = it)) })
 
-            Text("VgdV Card 0.2.0", style = MaterialTheme.typography.bodySmall)
+            val ctx = androidx.compose.ui.platform.LocalContext.current
+            androidx.compose.material3.HorizontalDivider()
+            Text("Novità e registro versioni", style = MaterialTheme.typography.titleSmall)
+            Text(
+                "Versione installata: ${AppInfo.versionName(ctx)} (build ${AppInfo.versionCode(ctx)})",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            ChangelogView(AppInfo.changelog(ctx))
         }
     }
 }
