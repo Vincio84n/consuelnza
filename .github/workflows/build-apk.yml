@@ -2,7 +2,9 @@ name: Build APK
 
 on:
   push:
+    paths: ['VgdV_Card/**', '.github/workflows/build-apk.yml']
   pull_request:
+    paths: ['VgdV_Card/**', '.github/workflows/build-apk.yml']
   workflow_dispatch:
 
 jobs:
@@ -16,6 +18,7 @@ jobs:
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
       - name: Build
+        working-directory: VgdV_Card
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon assembleDebug assembleRelease
@@ -23,5 +26,5 @@ jobs:
         with:
           name: VgdV-Card-apk
           path: |
-            app/build/outputs/apk/debug/*.apk
-            app/build/outputs/apk/release/*.apk
+            VgdV_Card/app/build/outputs/apk/debug/*.apk
+            VgdV_Card/app/build/outputs/apk/release/*.apk

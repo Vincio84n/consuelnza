@@ -25,4 +25,4 @@ Impostazioni (icona ⚙):
 Le chiavi sono salvate cifrate con Android Keystore.
 
 ## Build locale
-Android Studio (JDK 17), quindi `./gradlew assembleDebug`.
+Android Studio (JDK 17), quindi `cd VgdV_Card && ./gradlew assembleDebug` (oppure apri la cartella `VgdV_Card` in Android Studio).
