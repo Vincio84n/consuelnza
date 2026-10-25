@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "archiviofoto"
+dynamic = ["version"]
+description = "Catalogazione di un archivio di negativi scansionati: analisi tecnica, AI, volti, viste e note."
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24", "Pillow>=10"]
+
+[project.optional-dependencies]
+volti = ["opencv-python-headless>=4.8"]
+raw = ["rawpy>=0.19"]
+tutto = ["opencv-python-headless>=4.8", "rawpy>=0.19"]
+test = ["pytest>=7"]
+
+[project.scripts]
+archivio = "archiviofoto.cli:main"
+
+[tool.setuptools]
+packages = ["archiviofoto"]
+
+[tool.setuptools.dynamic]
+version = {attr = "archiviofoto.__version__"}

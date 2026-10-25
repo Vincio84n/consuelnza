@@ -1,0 +1,31 @@
+name: ArchivioFoto
+
+on:
+  push:
+    paths: ['ArchivioFoto/**', '.github/workflows/archivio-foto.yml']
+  pull_request:
+    paths: ['ArchivioFoto/**', '.github/workflows/archivio-foto.yml']
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        python: ['3.10', '3.13']
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: ArchivioFoto
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Installa
+        run: python -m pip install ".[volti,test]"
+      - name: Test
+        run: python -m pytest -v tests
+      - name: Comando installato
+        run: archivio --version

@@ -1,4 +1,6 @@
 numpy>=1.24
 Pillow>=10
+# riconoscimento volti
+opencv-python-headless>=4.8
 # opzionale, per leggere i RAW (DNG/NEF/CR2...)
 # rawpy>=0.19
