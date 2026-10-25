@@ -48,7 +48,7 @@ def prossimi_passi(root):
     if cfg["_problemi"]:
         passi.append({"testo": "La configurazione ha valori non validi: i comandi sono bloccati finché non li correggi.",
                       "link": "/impostazioni", "guida": "configurazione"})
-    if chiavi.richiesta(cfg["ai"]) and not chiavi.leggi(cfg["ai"])[0]:
+    if chiavi.richiesta(cfg["ai"]) and not chiavi.leggi(cfg["ai"], root)[0]:
         passi.append({"testo": "Chiave API NVIDIA non impostata: la lettura AI e l'assistente non funzionano.",
                       "link": "/impostazioni", "guida": "chiave-api"})
     errori = note.aperte(root, livello="errore")

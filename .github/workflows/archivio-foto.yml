@@ -92,7 +92,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION=$(grep -oP '__version__ = "\K[^"]+' ArchivioFoto/archiviofoto/__init__.py)
-          zip -qr ArchivioFoto-sorgenti.zip ArchivioFoto -x 'ArchivioFoto/tests/*' '*/__pycache__/*'
+          zip -qr ArchivioFoto-sorgenti.zip ArchivioFoto -x 'ArchivioFoto/tests/*' '*/__pycache__/*' '*/CHIAVE.md'
           { echo "## Download"; \
             echo "- **Windows**: ArchivioFoto-Windows.zip → estrai e apri ArchivioFoto.exe (nessuna installazione)"; \
             echo "- **macOS** (Apple Silicon M1/M2/M3/M4): ArchivioFoto-macOS.zip → estrai e apri ArchivioFoto.app"; \

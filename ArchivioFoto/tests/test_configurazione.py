@@ -35,7 +35,8 @@ def test_file_md_creati(arch):
     for f in ("CONFIGURAZIONE.md", "ISTRUZIONI.md", "REGISTRO.md"):
         assert (arch / f).exists()
     cfg = configurazione.carica(arch)
-    assert cfg["ai"]["modello"] == "nvidia/nemotron-nano-12b-v2-vl" and cfg["_versione"] == 1
+    assert cfg["ai"]["modello"] == "nvidia/nemotron-3-ultra-550b-a55b" and cfg["_versione"] == 1
+    assert cfg["ai"]["modello_riserva"] == "nvidia/nemotron-nano-12b-v2-vl"
     assert "**ingest**" in leggi(arch / "REGISTRO.md")
 
 
@@ -91,6 +92,21 @@ def test_chiave_nel_portachiavi_mai_nei_file(arch, isolamento, capsys):
             assert "SEGRETISSIMA" not in leggi(f), f
     assert main(["chiave", "rimuovi"]) == 0
     assert not isolamento.d
+
+
+def test_chiave_in_file_md(arch, capsys):
+    from archiviofoto import chiavi
+    (arch / ".git").mkdir()  # l'archivio dentro un repository: CHIAVE.md va escluso dai commit
+    assert main(["chiave", "imposta", "--file", "--valore", "nvapi-DAFILE987654"]) == 0
+    testo = leggi(arch / "CHIAVE.md")
+    assert "- nvidia: nvapi-DAFILE987654" in testo and "Non pubblicarlo" in testo
+    assert "CHIAVE.md" in leggi(arch / ".gitignore").split()
+    assert chiavi.leggi(configurazione.carica(arch)["ai"], arch) == ("nvapi-DAFILE987654", f"file {arch / 'CHIAVE.md'}")
+    assert "DAFILE" not in leggi(arch / "REGISTRO.md")
+    assert main(["verifica"]) == 0
+    assert any("in chiaro" in x["messaggio"] for x in note.aperte(arch))
+    assert main(["chiave", "rimuovi"]) == 0
+    assert "DAFILE" not in leggi(arch / "CHIAVE.md")
 
 
 # ---------------------------------------------------------------- ISTRUZIONI.md e motori (API finta)
@@ -155,23 +171,44 @@ def test_istruzioni_guidano_ai_e_versione(arch, api):
     assert main(["ai", "--obsolete"]) == 0 and len(FakeAPI.richieste) == n + 2
 
 
-def test_modello_di_riserva(arch, api):
-    FakeAPI.modello_rotto = "nvidia/nemotron-nano-12b-v2-vl"
-    assert main(["config", "imposta", "modello_riserva=meta/llama-3.2-11b-vision-instruct"]) == 0
+def test_motore_selezionato_e_riserva(arch, api):
+    # il motore selezionato (Ultra) viene sempre provato; se non legge le immagini subentra la riserva
+    FakeAPI.modello_rotto = "nvidia/nemotron-3-ultra-550b-a55b"
     assert main(["ai"]) == 0
+    modelli = [r["model"] for r in FakeAPI.richieste]
+    assert modelli[0] == "nvidia/nemotron-3-ultra-550b-a55b"
     rec = json.loads(leggi(arch / "dati" / "ARC-1975-R007-F01.json"))
-    assert rec["ai"]["modello"] == "meta/llama-3.2-11b-vision-instruct"
+    assert rec["ai"]["modello"] == "nvidia/nemotron-nano-12b-v2-vl"
     assert any("riserva" in x["messaggio"] for x in note.aperte(arch))
+
+
+def test_motore_selezionato_funzionante(arch, api):
+    assert main(["ai"]) == 0
+    assert {r["model"] for r in FakeAPI.richieste} == {"nvidia/nemotron-3-ultra-550b-a55b"}
+
+
+def test_passa_alla_riserva_dopo_due_foto(arch, api, tmp_path):
+    scan = tmp_path / "altre"
+    scan.mkdir()
+    for i in range(4):
+        Image.new("RGB", (300, 200), (i * 40, 90, 90)).save(scan / f"{i}.jpg")
+    assert main(["ingest", str(scan), "--rullino", "8"]) == 0
+    FakeAPI.modello_rotto = "nvidia/nemotron-3-ultra-550b-a55b"
+    assert main(["ai"]) == 0
+    tentativi_ultra = sum(1 for r in FakeAPI.richieste if r["model"] == FakeAPI.modello_rotto)
+    assert tentativi_ultra == 2  # dopo 2 foto non lo riprova a ogni immagine
+    assert any("non ha letto le immagini" in x["messaggio"] for x in note.aperte(arch))
 
 
 def test_motori_elenca_prova_usa(arch, api, capsys):
     assert main(["motori", "elenca"]) == 0
     out = capsys.readouterr().out
-    assert "llama-3.2-11b-vision-instruct" in out and "← in uso come visione" in out
+    assert "llama-3.2-11b-vision-instruct" in out and "← in uso come visione" in out and "← in uso come riserva" in out
     assert main(["motori", "prova"]) == 0
     out = capsys.readouterr().out
     assert out.count("OK") == 2
     assert main(["motori", "usa", "visione", "meta/llama-3.2-11b-vision-instruct"]) == 0
+    assert "nvidia/nemotron-3-ultra-550b-a55b → meta/llama-3.2-11b-vision-instruct" in leggi(arch / "REGISTRO.md")
     assert configurazione.carica(arch)["ai"]["modello"] == "meta/llama-3.2-11b-vision-instruct"
     FakeAPI.modello_rotto = "meta/llama-3.2-11b-vision-instruct"
     assert main(["motori", "prova", "visione"]) == 1

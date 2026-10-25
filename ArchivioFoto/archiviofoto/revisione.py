@@ -270,13 +270,15 @@ def make_handler(root):
                 ai = load_config(root, rigoroso=False)["ai"]
                 try:
                     if form.get("azione") == "rimuovi":
-                        chiavi.rimuovi(ai)
+                        chiavi.rimuovi(ai, root)
                         registro.scrivi(root, "chiave", f"chiave '{ai['nome_chiave']}' rimossa dalla webapp")
                         msg = "Chiave rimossa dal portachiavi."
                     else:
-                        chiavi.salva(ai, form.get("chiave", ""))
-                        registro.scrivi(root, "chiave", f"chiave '{ai['nome_chiave']}' salvata dalla webapp ({chiavi.mascherata(form['chiave'].strip())})")
-                        msg = "Chiave salvata nel portachiavi del sistema. Ora premi «Prova»."
+                        dove = "file" if form.get("dove") == "file" else "portachiavi"
+                        p = chiavi.salva(ai, form.get("chiave", ""), dove, root)
+                        registro.scrivi(root, "chiave", f"chiave '{ai['nome_chiave']}' salvata dalla webapp in {p.name if p else 'portachiavi'} ({chiavi.mascherata(form['chiave'].strip())})")
+                        msg = ("Chiave salvata nel file CHIAVE.md dell'archivio: non condividere quel file. " if p
+                               else "Chiave salvata nel portachiavi del sistema. ") + "Ora premi «Prova»."
                     return self._send(200, self.impostazioni_page(msg))
                 except ErroreArchivio as e:
                     return self._send(200, self.impostazioni_page(str(e), errore=True))
@@ -393,7 +395,7 @@ def make_handler(root):
             from . import chiavi
             cfg = load_config(root, rigoroso=False)
             correnti = configurazione.valori_correnti(root) | (valori or {})
-            chiave, fonte = chiavi.leggi(cfg["ai"])
+            chiave, fonte = chiavi.leggi(cfg["ai"], root)
             sezioni, sezione, campi = [], None, []
             for v in configurazione.SCHEMA:
                 if v.sezione != sezione:
@@ -419,7 +421,10 @@ def make_handler(root):
 <section class="card" data-tour="La chiave API NVIDIA si salva nel portachiavi del sistema (Windows o macOS), mai nei file dell'archivio. Si crea su build.nvidia.com." data-tour-titolo="Chiave API" data-tour-ordine="1">
 <h3>Chiave API</h3><p>Stato: {stato_chiave}</p>
 <form method="post" action="/chiave"><label data-aiuto="Inizia con nvapi-. Si crea gratis su build.nvidia.com. Non viene mai mostrata né scritta nei file.">Nuova chiave</label>
-<input type="password" name="chiave" autocomplete="off" placeholder="nvapi-..."><button>Salva chiave</button></form>
+<input type="password" name="chiave" autocomplete="off" placeholder="nvapi-...">
+<label data-aiuto="Portachiavi: protetto dal sistema, consigliato. File CHIAVE.md: testo in chiaro nella cartella dell'archivio, comodo da spostare ma da non condividere mai.">Dove salvarla</label>
+<select name="dove"><option value="portachiavi">Portachiavi del sistema (consigliato)</option><option value="file">File CHIAVE.md nella cartella dell'archivio</option></select>
+<button>Salva chiave</button></form>
 <form method="post" action="/chiave"><input type="hidden" name="azione" value="rimuovi"><button class="sec">Rimuovi chiave</button></form></section>
 <section class="card" data-tour="Prova i motori con una chiamata vera: vedi se funzionano, quanto ci mettono e cosa rispondono. Carica l'elenco per scegliere tra i modelli disponibili." data-tour-titolo="Prova dei motori" data-tour-ordine="2">
 <h3>Motori AI</h3><p class="mut">Visione: <code>{esc(cfg['ai']['modello'])}</code><br>Testo: <code>{esc(cfg['ai']['modello_testo'])}</code><br>Riserva: <code>{esc(cfg['ai']['modello_riserva'] or '—')}</code></p>

@@ -24,7 +24,11 @@ Versione e novità: [CHANGELOG.md](CHANGELOG.md) oppure `archivio versione --log
 | `note.json` | errori e allarmi aperti/chiusi | il programma e tu |
 | `master/`, `dati/` | foto originali e schede JSON | il programma |
 
-La **chiave API** non sta in nessun file: è nel portachiavi del sistema (`archivio chiave imposta` o pagina Impostazioni).
+| `CHIAVE.md` (facoltativo) | la chiave API in chiaro, se scegli di non usare il portachiavi | tu (da Impostazioni o `archivio chiave imposta --file`) |
+
+La **chiave API** sta nel portachiavi del sistema oppure in `CHIAVE.md`. Mai in CONFIGURAZIONE.md, nel Registro o su GitHub: `CHIAVE.md` è escluso da Git e dagli ZIP di rilascio.
+
+**Motore predefinito**: `nvidia/nemotron-3-ultra-550b-a55b` per foto e assistente, con riserva di visione `nvidia/nemotron-nano-12b-v2-vl`.
 
 ## Configurazione dei motori
 ```bash

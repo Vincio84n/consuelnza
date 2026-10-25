@@ -3,6 +3,14 @@
 Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/). Numerazione [SemVer](https://semver.org/lang/it/).
 La versione in uso si vede con `archivio versione` (o `archivio versione --log` per questo registro), nell'interfaccia di revisione e nel campo `versione_tool` di ogni scheda JSON.
 
+## [0.5.0] - 2026-10-25
+### Aggiunto
+- **Chiave API in CHIAVE.md**: in alternativa al portachiavi, la chiave si può salvare in un file Markdown nella cartella dell'archivio (`archivio chiave imposta --file`, oppure *Dove salvarla* in Impostazioni). Il file è escluso da Git e dagli ZIP di rilascio; `verifica` ricorda che contiene la chiave in chiaro.
+- **Motore selezionato sempre per primo**: `nvidia/nemotron-3-ultra-550b-a55b` è il motore predefinito sia per le foto sia per l'assistente. `nvidia/nemotron-nano-12b-v2-vl` è la riserva di visione: subentra se il motore selezionato non legge un'immagine, e dopo due foto di fila viene usata direttamente per il resto della lettura, con una nota.
+
+### Corretto
+- `motori elenca` mostra tutti i ruoli quando un modello ne copre più di uno.
+
 ## [0.4.1] - 2026-10-25
 ### Modificato
 - Modello di testo predefinito (assistente della guida): `nvidia/nemotron-3-ultra-550b-a55b`. Gli archivi esistenti mantengono il valore scritto in CONFIGURAZIONE.md: per cambiarlo usa `archivio motori usa testo nvidia/nemotron-3-ultra-550b-a55b` o la pagina Impostazioni.

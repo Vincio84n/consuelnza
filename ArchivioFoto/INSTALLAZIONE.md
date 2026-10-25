@@ -27,8 +27,10 @@ Per comodità: tasto destro su `ArchivioFoto.exe` → *Mostra altre opzioni* →
 Il programma resta attivo in background: per chiuderlo usa il pulsante **Esci** nella webapp. Se qualcosa non parte, il file `~/Library/Application Support/ArchivioFoto/ultimo-avvio.log` contiene i messaggi.
 
 ## Prima configurazione (5 minuti, dalla webapp)
-1. **Impostazioni → Chiave API**: crea una chiave su https://build.nvidia.com (inizia con `nvapi-`), incollala e premi *Salva chiave*. Viene salvata nel **portachiavi del sistema** (Gestione credenziali di Windows, Portachiavi di macOS), mai nei file.
-2. **Impostazioni → Motori AI**: *Carica elenco modelli*, scegli i modelli e premi **Prova visione** e **Prova testo**.
+1. **Impostazioni → Chiave API**: incolla la chiave NVIDIA (`nvapi-...`, da https://build.nvidia.com), scegli *Dove salvarla* e premi *Salva chiave*.
+   - **Portachiavi del sistema** (consigliato): protetto da Windows o macOS.
+   - **File CHIAVE.md** nella cartella dell'archivio: comodo, ma è testo in chiaro e **non va mai condiviso o pubblicato**.
+2. **Impostazioni → Motori AI**: il motore predefinito è **Nemotron 3 Ultra** (`nvidia/nemotron-3-ultra-550b-a55b`), con riserva di visione `nemotron-nano-12b-v2-vl`. Premi **Prova testo** e **Prova visione**.
 3. **Istruzioni**: descrivi l'archivio (chi, dove, quando) e le parole da usare nei tag.
 4. **Lavori → Importa rullino**: sei pronto.
 

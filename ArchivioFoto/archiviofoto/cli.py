@@ -118,7 +118,8 @@ def cmd_ai(args):
     root = find_root()
     cfg = load_config(root)
     istr = istruzioni.carica(root)
-    fatte, riserva, errori_di_fila = 0, 0, 0
+    fatte, riserva, errori_di_fila, riserva_di_fila = 0, 0, 0, 0
+    scelto = args.modello or cfg["ai"]["modello"]
     for pid in _ids(root, args):
         rec = load_rec(root, pid)
         if rec.get("ai") and not args.forza:
@@ -126,15 +127,24 @@ def cmd_ai(args):
                 continue
         try:
             im, _ = open_image(master_path(root, rec))
-            res, usato = call_ai(cfg, im, istr, args.modello)
+            res, usato = call_ai(cfg, im, istr, scelto)
             rec["ai"] = res | {"modello": usato, "istruzioni": istr["versione"], "analizzato": now()}
             save_rec(root, rec)
             note.risolvi(root, pid=pid, comando="ai")
             errori_di_fila = 0
             fatte += 1
-            if usato != (args.modello or cfg["ai"]["modello"]):
+            if usato != scelto:
                 riserva += 1
+                riserva_di_fila += 1
                 note.registra(root, "attenzione", f"letta con il modello di riserva {usato}", "ai", pid)
+                if riserva_di_fila >= 2 and usato == cfg["ai"]["modello_riserva"]:
+                    # il motore selezionato non funziona sulle immagini: inutile pagarne il tentativo a ogni foto
+                    note.registra(root, "attenzione", f"il motore selezionato {scelto} non ha letto le immagini: "
+                                  f"per il resto di questa lettura uso direttamente {usato}", "ai")
+                    print(f"  -> {scelto} non legge le immagini: continuo con {usato}")
+                    scelto = usato
+            else:
+                riserva_di_fila = 0
             print(f"  {pid}: {res.get('tipo_scatto')} - {str(res.get('descrizione', ''))[:70]}")
         except Exception as e:
             _fallimento(root, "ai", pid, e)
@@ -510,9 +520,11 @@ def cmd_verifica(args):
         if importlib.util.find_spec(mod) is None:
             print(f"  [info] modulo opzionale '{mod}' assente: {uso} non disponibile")
     from . import chiavi
-    chiave, fonte = chiavi.leggi(cfg["ai"])
+    chiave, fonte = chiavi.leggi(cfg["ai"], root)
     if chiave:
         print(f"  chiave API: {chiavi.mascherata(chiave)} ({fonte})")
+        if fonte.startswith("file"):
+            problema("attenzione", "la chiave API è in chiaro in CHIAVE.md: non condividere il file; il portachiavi del sistema è più sicuro")
     if not chiave and chiavi.richiesta(cfg["ai"]):
         problema("attenzione", "chiave API assente: impostala con  archivio chiave imposta  o dalla pagina Impostazioni")
     elif args.rete:
@@ -635,15 +647,18 @@ def cmd_chiave(args):
         if not valore:
             import getpass
             valore = getpass.getpass("Incolla la chiave API (non verrà mostrata): ")
-        chiavi.salva(ai, valore)
-        registro.esito(f"chiave '{ai['nome_chiave']}' salvata nel portachiavi ({chiavi.mascherata(valore)})")
-        print(f"Chiave salvata nel portachiavi del sistema ({chiavi.mascherata(valore)}). Prova: archivio motori prova")
+        dove = "file" if args.file else "portachiavi"
+        p = chiavi.salva(ai, valore, dove, root)
+        registro.esito(f"chiave '{ai['nome_chiave']}' salvata in {p or 'portachiavi'} ({chiavi.mascherata(valore)})")
+        print(f"Chiave salvata {'nel file ' + str(p) if p else 'nel portachiavi del sistema'} ({chiavi.mascherata(valore.strip())}). Prova: archivio motori prova")
+        if p:
+            print("ATTENZIONE: CHIAVE.md contiene la chiave in chiaro. Non pubblicarlo e non includerlo in backup condivisi.")
     elif args.azione == "rimuovi":
-        ok = chiavi.rimuovi(ai)
+        ok = chiavi.rimuovi(ai, root)
         registro.esito(f"chiave '{ai['nome_chiave']}' " + ("rimossa" if ok else "non presente"))
         print("Chiave rimossa." if ok else "Nessuna chiave da rimuovere nel portachiavi.")
     else:
-        k, fonte = chiavi.leggi(ai)
+        k, fonte = chiavi.leggi(ai, root)
         print(f"Chiave: {chiavi.mascherata(k)} ({fonte})" if k else
               "Nessuna chiave impostata." + (" Non serve per un motore locale." if not chiavi.richiesta(ai) else " Usa: archivio chiave imposta"))
 
@@ -654,7 +669,10 @@ def cmd_motori(args):
     cfg = load_config(root, rigoroso=False)
     if args.azione == "elenca":
         elenco = motori.elenca(cfg)
-        attivi = {cfg["ai"]["modello"]: "visione", cfg["ai"]["modello_testo"]: "testo", cfg["ai"]["modello_riserva"]: "riserva"}
+        attivi = {}
+        for ruolo, k in (("visione", "modello"), ("testo", "modello_testo"), ("riserva", "modello_riserva")):
+            if cfg["ai"][k]:
+                attivi[cfg["ai"][k]] = (attivi[cfg["ai"][k]] + " e " if cfg["ai"][k] in attivi else "") + ruolo
         for m in elenco:
             if args.tutti or m["visione"] or m["id"] in attivi:
                 tag = "visione?" if m["visione"] else "testo"
@@ -858,6 +876,7 @@ def build_parser():
     q = sp.add_parser("chiave", help="chiave API nel portachiavi: stato | imposta | rimuovi")
     q.add_argument("azione", nargs="?", default="stato", choices=["stato", "imposta", "rimuovi"])
     q.add_argument("--valore", help="sconsigliato: resta nella cronologia del terminale; senza, viene chiesta")
+    q.add_argument("--file", action="store_true", help="salva in CHIAVE.md nella cartella dell'archivio invece che nel portachiavi")
     q.set_defaults(fn=cmd_chiave)
 
     q = sp.add_parser("motori", help="motori AI: elenca | prova [visione|testo] | usa visione|testo|riserva NOME")
