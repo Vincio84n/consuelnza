@@ -28,7 +28,7 @@ SCHEMA = [
          "Indirizzo dell'API compatibile OpenAI. NVIDIA: https://integrate.api.nvidia.com/v1 · Ollama locale: http://localhost:11434/v1"),
     Voce("Motori AI", "modello_visione", ("ai", "modello"), "testo", "nvidia/nemotron-nano-12b-v2-vl",
          "Modello che legge le foto: deve essere un modello di VISIONE. Elenco: archivio motori elenca"),
-    Voce("Motori AI", "modello_testo", ("ai", "modello_testo"), "testo", "nvidia/nemotron-3-super-120b-a12b",
+    Voce("Motori AI", "modello_testo", ("ai", "modello_testo"), "testo", "nvidia/nemotron-3-ultra-550b-a55b",
          "Modello solo testo usato dall'assistente della guida."),
     Voce("Motori AI", "modello_riserva", ("ai", "modello_riserva"), "testo", "", vuoto=True,
          aiuto="Modello di visione usato in automatico se quello principale fallisce (modello inesistente, server in errore). Vuoto = nessuna riserva."),

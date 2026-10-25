@@ -3,6 +3,10 @@
 Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/). Numerazione [SemVer](https://semver.org/lang/it/).
 La versione in uso si vede con `archivio versione` (o `archivio versione --log` per questo registro), nell'interfaccia di revisione e nel campo `versione_tool` di ogni scheda JSON.
 
+## [0.4.1] - 2026-10-25
+### Modificato
+- Modello di testo predefinito (assistente della guida): `nvidia/nemotron-3-ultra-550b-a55b`. Gli archivi esistenti mantengono il valore scritto in CONFIGURAZIONE.md: per cambiarlo usa `archivio motori usa testo nvidia/nemotron-3-ultra-550b-a55b` o la pagina Impostazioni.
+
 ## [0.4.0] - 2026-10-25
 ### Aggiunto
 - **CONFIGURAZIONE.md**: tutte le scelte del programma in un file Markdown leggibile, modificabile a mano, dalla webapp (*Impostazioni*) o con `archivio config imposta`. Ogni valore viene controllato: un errore indica la riga e blocca i comandi invece di essere ignorato. La versione della configurazione aumenta a ogni modifica.

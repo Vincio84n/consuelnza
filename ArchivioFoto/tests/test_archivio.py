@@ -232,7 +232,7 @@ def test_guida_ricerca_e_passi(arch):
 class FakeChat(BaseHTTPRequestHandler):
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
-        ok = "Viste e rinomine" in body["messages"][0]["content"] and body["model"] == "nvidia/nemotron-3-super-120b-a12b"
+        ok = "Viste e rinomine" in body["messages"][0]["content"] and body["model"] == "nvidia/nemotron-3-ultra-550b-a55b"
         data = json.dumps({"choices": [{"message": {"content": "<think>x</think>Usa `archivio viste luogo`" if ok else "contesto mancante"}}]}).encode()
         self.send_response(200)
         self.end_headers()

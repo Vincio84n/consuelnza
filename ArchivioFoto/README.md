@@ -130,7 +130,7 @@ Va bene qualsiasi API **OpenAI-compatibile con supporto immagini**. Configurala 
 ```json
 "ai": {"base_url": "https://integrate.api.nvidia.com/v1", "modello": "nvidia/nemotron-nano-12b-v2-vl", "chiave_env": "NVIDIA_API_KEY"}
 ```
-Il modello deve essere **di visione**: Nemotron 3 Super/Nano solo testo non leggono le immagini. Per lavorare in locale, senza inviare le foto all'esterno, usa ad esempio Ollama (`http://localhost:11434/v1`) con un modello VL. Per provare un modello su un rullino: `archivio ai --rullino 42 --forza --modello <nome>`. Dopo 3 errori consecutivi il comando si ferma, per non consumare richieste.
+Il modello deve essere **di visione**: i modelli Nemotron 3 solo testo (Nano, Super, Ultra) non leggono le immagini: Nemotron 3 Ultra è il modello predefinito per l'assistente (`modello_testo`). Per lavorare in locale, senza inviare le foto all'esterno, usa ad esempio Ollama (`http://localhost:11434/v1`) con un modello VL. Per provare un modello su un rullino: `archivio ai --rullino 42 --forza --modello <nome>`. Dopo 3 errori consecutivi il comando si ferma, per non consumare richieste.
 
 ## Sviluppo
 ```bash

@@ -107,7 +107,7 @@ class FakeAPI(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self._ok({"data": [{"id": "nvidia/nemotron-nano-12b-v2-vl"}, {"id": "meta/llama-3.2-11b-vision-instruct"},
-                           {"id": "nvidia/nemotron-3-super-120b-a12b"}]})
+                           {"id": "nvidia/nemotron-3-ultra-550b-a55b"}]})
 
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
