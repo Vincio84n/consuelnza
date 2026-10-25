@@ -28,7 +28,7 @@ Versione e novità: [CHANGELOG.md](CHANGELOG.md) oppure `archivio versione --log
 
 La **chiave API** sta nel portachiavi del sistema oppure in `CHIAVE.md`. Mai in CONFIGURAZIONE.md, nel Registro o su GitHub: `CHIAVE.md` è escluso da Git e dagli ZIP di rilascio.
 
-**Motore predefinito**: `nvidia/nemotron-3-ultra-550b-a55b` per foto e assistente, con riserva di visione `nvidia/nemotron-nano-12b-v2-vl`.
+**Motore predefinito**: `nvidia/nemotron-3-ultra-550b-a55b` per foto e assistente. Riserve automatiche: `nvidia/nemotron-3-super-120b-a12b` per il testo, `nvidia/nemotron-nano-12b-v2-vl` per le immagini.
 
 ## Configurazione dei motori
 ```bash

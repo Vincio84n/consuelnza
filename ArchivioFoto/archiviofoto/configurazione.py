@@ -30,6 +30,8 @@ SCHEMA = [
          "Motore selezionato per leggere le foto. Se non accetta immagini, il programma passa da solo al modello di riserva e lo annota nelle Note. Elenco: archivio motori elenca"),
     Voce("Motori AI", "modello_testo", ("ai", "modello_testo"), "testo", "nvidia/nemotron-3-ultra-550b-a55b",
          "Modello solo testo usato dall'assistente della guida."),
+    Voce("Motori AI", "modello_testo_riserva", ("ai", "modello_testo_riserva"), "testo", "nvidia/nemotron-3-super-120b-a12b", vuoto=True,
+         aiuto="Modello di testo usato in automatico se modello_testo non risponde (sovraccarico, errore del server, modello non disponibile). Vuoto = nessuna riserva."),
     Voce("Motori AI", "modello_riserva", ("ai", "modello_riserva"), "testo", "nvidia/nemotron-nano-12b-v2-vl", vuoto=True,
          aiuto="Modello di visione usato in automatico se quello principale fallisce (modello inesistente, server in errore). Vuoto = nessuna riserva."),
     Voce("Motori AI", "nome_chiave", ("ai", "nome_chiave"), "testo", "nvidia",

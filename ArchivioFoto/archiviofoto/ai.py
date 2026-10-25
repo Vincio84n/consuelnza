@@ -114,6 +114,31 @@ def parse_json(text):
         raise ErroreArchivio(f"JSON del modello non valido ({e}): {m.group(0)[:120]!r}")
 
 
+def chat_testo(ai, messaggi, max_tokens=900, temperature=0.2):
+    """Chiamata solo testo: modello_testo, poi modello_testo_riserva se il primo ha problemi.
+    Restituisce (testo, modello usato). Gli errori di chiave (401/403) non passano alla riserva."""
+    candidati = [ai["modello_testo"]] + ([ai["modello_testo_riserva"]] if ai.get("modello_testo_riserva")
+                                         and ai["modello_testo_riserva"] != ai["modello_testo"] else [])
+    ultimo = None
+    for m in candidati:
+        try:
+            body = _corpo(m, messaggi, max_tokens)
+            body["temperature"] = temperature
+            resp = _post(ai, body)
+            testo = (resp["choices"][0]["message"].get("content") or "")
+            testo = re.sub(r"<think>.*?</think>", "", testo, flags=re.S).strip()
+            if not testo:
+                raise ErroreAPI(f"risposta vuota da {m}")
+            return testo, m
+        except (KeyError, IndexError, TypeError):
+            ultimo = ErroreAPI(f"risposta API inattesa da {m}")
+        except ErroreArchivio as e:
+            ultimo = e
+            if getattr(e, "codice", None) in (401, 403):
+                break
+    raise ultimo
+
+
 def modelli(cfg):
     """Elenco dei modelli disponibili con la chiave configurata."""
     resp = _richiesta(cfg["ai"], "/models")

@@ -111,7 +111,6 @@ Non inventare comandi o opzioni che non compaiono negli articoli."""
 
 
 def chiedi(root, domanda, storia=None):
-    from .ai import _post
     cfg = load_config(root, rigoroso=False)
     fonti = cerca(domanda) or articoli()[:2]
     contesto = "\n\n".join(f"## {a['titolo']}\n{a['testo']}" for a in fonti)
@@ -121,11 +120,8 @@ def chiedi(root, domanda, storia=None):
         if m.get("ruolo") in ("utente", "assistente") and m.get("testo"):
             messaggi.append({"role": "user" if m["ruolo"] == "utente" else "assistant", "content": str(m["testo"])[:2000]})
     messaggi.append({"role": "user", "content": domanda[:2000]})
-    modello = cfg["ai"]["modello_testo"]
-    body = {"model": modello, "temperature": 0.2, "max_tokens": 900, "messages": messaggi}
-    if "nemotron" in modello.lower():
-        body["chat_template_kwargs"] = {"enable_thinking": False}
-    resp = _post(cfg["ai"], body)
-    testo = resp["choices"][0]["message"].get("content") or ""
-    testo = re.sub(r"<think>.*?</think>", "", testo, flags=re.S).strip()
-    return {"risposta": testo, "fonti": [{"id": a["id"], "titolo": a["titolo"]} for a in fonti]}
+    from .ai import chat_testo
+    testo, usato = chat_testo(cfg["ai"], messaggi)
+    if usato != cfg["ai"]["modello_testo"]:
+        note.registra(root, "attenzione", f"assistente: {cfg['ai']['modello_testo']} non ha risposto, usato {usato}", "revisione")
+    return {"risposta": testo, "modello": usato, "fonti": [{"id": a["id"], "titolo": a["titolo"]} for a in fonti]}

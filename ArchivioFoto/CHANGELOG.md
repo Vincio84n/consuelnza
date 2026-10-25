@@ -3,6 +3,12 @@
 Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/). Numerazione [SemVer](https://semver.org/lang/it/).
 La versione in uso si vede con `archivio versione` (o `archivio versione --log` per questo registro), nell'interfaccia di revisione e nel campo `versione_tool` di ogni scheda JSON.
 
+## [0.5.1] - 2026-10-25
+### Aggiunto
+- **Riserva di testo**: se Nemotron 3 Ultra (`modello_testo`) ha problemi (sovraccarico, errore del server, modello non disponibile, risposta vuota), l'assistente passa in automatico a `nvidia/nemotron-3-super-120b-a12b` (`modello_testo_riserva`) e lo annota nelle Note. Un errore di chiave (401/403) non attiva la riserva, perché cambierebbe solo il modello e non risolverebbe il problema.
+- `motori prova testo`: se il motore selezionato non risponde, prova subito anche la riserva e dice se verrà usata.
+- `motori usa riserva-testo NOME` e campo *modello testo riserva* in Impostazioni.
+
 ## [0.5.0] - 2026-10-25
 ### Aggiunto
 - **Chiave API in CHIAVE.md**: in alternativa al portachiavi, la chiave si può salvare in un file Markdown nella cartella dell'archivio (`archivio chiave imposta --file`, oppure *Dove salvarla* in Impostazioni). Il file è escluso da Git e dagli ZIP di rilascio; `verifica` ricorda che contiene la chiave in chiaro.

@@ -670,7 +670,8 @@ def cmd_motori(args):
     if args.azione == "elenca":
         elenco = motori.elenca(cfg)
         attivi = {}
-        for ruolo, k in (("visione", "modello"), ("testo", "modello_testo"), ("riserva", "modello_riserva")):
+        for ruolo, k in (("visione", "modello"), ("testo", "modello_testo"), ("riserva", "modello_riserva"),
+                         ("riserva testo", "modello_testo_riserva")):
             if cfg["ai"][k]:
                 attivi[cfg["ai"][k]] = (attivi[cfg["ai"][k]] + " e " if cfg["ai"][k] in attivi else "") + ruolo
         for m in elenco:
@@ -695,10 +696,12 @@ def cmd_motori(args):
         if not tutto_ok:
             raise ErroreArchivio("almeno un motore non funziona: dettagli sopra e nelle note")
     elif args.azione == "usa":
-        if len(args.valori) != 2 or args.valori[0] not in ("visione", "testo", "riserva"):
-            raise ErroreArchivio("uso: archivio motori usa visione|testo|riserva NOME_MODELLO")
+        ruoli = {"visione": "modello_visione", "testo": "modello_testo", "riserva": "modello_riserva",
+                 "riserva-testo": "modello_testo_riserva"}
+        if len(args.valori) != 2 or args.valori[0] not in ruoli:
+            raise ErroreArchivio("uso: archivio motori usa visione|testo|riserva|riserva-testo NOME_MODELLO")
         ruolo, nome = args.valori
-        chiave = {"visione": "modello_visione", "testo": "modello_testo", "riserva": "modello_riserva"}[ruolo]
+        chiave = ruoli[ruolo]
         cambi = configurazione.imposta(root, {chiave: nome}, "motori usa")
         registro.esito("; ".join(cambi) or "nessuna modifica")
         print("\n".join(cambi) or "Già in uso.")

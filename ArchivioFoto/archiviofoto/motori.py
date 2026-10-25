@@ -53,6 +53,12 @@ def prova(cfg, ruolo="visione", modello=None):
             ok = bool(testo)
             dettaglio = f"Risposta: {testo[:80]}"
     except ErroreArchivio as e:
+        # il motore selezionato non va: se c'è, si prova subito anche la riserva di testo e lo si dice
+        rt = ai.get("modello_testo_riserva")
+        if ruolo == "testo" and not modello and rt and rt != ai["modello_testo"] and getattr(e, "codice", None) not in (401, 403):
+            alt = prova(cfg, "testo", rt)
+            return {"ok": False, "modello": ai["modello_testo"], "secondi": round(time.monotonic() - t0, 1),
+                    "dettaglio": f"{e} — riserva {rt}: " + ("funziona, verrà usata in automatico" if alt["ok"] else f"anche lei non funziona ({alt['dettaglio']})")}
         return {"ok": False, "modello": modello or ai["modello" if ruolo == "visione" else "modello_testo"],
                 "secondi": round(time.monotonic() - t0, 1), "dettaglio": str(e)}
     return {"ok": ok, "modello": m, "secondi": round(time.monotonic() - t0, 1), "dettaglio": dettaglio}

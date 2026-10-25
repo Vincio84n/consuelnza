@@ -427,7 +427,7 @@ def make_handler(root):
 <button>Salva chiave</button></form>
 <form method="post" action="/chiave"><input type="hidden" name="azione" value="rimuovi"><button class="sec">Rimuovi chiave</button></form></section>
 <section class="card" data-tour="Prova i motori con una chiamata vera: vedi se funzionano, quanto ci mettono e cosa rispondono. Carica l'elenco per scegliere tra i modelli disponibili." data-tour-titolo="Prova dei motori" data-tour-ordine="2">
-<h3>Motori AI</h3><p class="mut">Visione: <code>{esc(cfg['ai']['modello'])}</code><br>Testo: <code>{esc(cfg['ai']['modello_testo'])}</code><br>Riserva: <code>{esc(cfg['ai']['modello_riserva'] or '—')}</code></p>
+<h3>Motori AI</h3><p class="mut">Visione: <code>{esc(cfg['ai']['modello'])}</code><br>Testo: <code>{esc(cfg['ai']['modello_testo'])}</code><br>Riserva visione: <code>{esc(cfg['ai']['modello_riserva'] or '—')}</code><br>Riserva testo: <code>{esc(cfg['ai']['modello_testo_riserva'] or '—')}</code></p>
 <button class="sec" id="btn-modelli">Carica elenco modelli</button> <button id="btn-prova-visione">Prova visione</button> <button id="btn-prova-testo">Prova testo</button>
 <div id="esito-motori" class="mut" style="margin-top:8px"></div><div id="elenco-modelli" class="mut"></div></section></div>
 <datalist id="modelli"></datalist>

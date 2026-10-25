@@ -318,3 +318,30 @@ def test_app_ricorda_archivio(arch, tmp_path, monkeypatch):
     app.ricorda(arch)
     monkeypatch.chdir(tmp_path)
     assert app.trova_archivio() == arch
+
+
+def test_testo_passa_a_super_se_ultra_ha_problemi(arch, api, capsys):
+    from archiviofoto import aiuto
+    FakeAPI.modello_rotto = "nvidia/nemotron-3-ultra-550b-a55b"
+    r = aiuto.chiedi(arch, "come importo un rullino?")
+    assert r["modello"] == "nvidia/nemotron-3-super-120b-a12b" and r["risposta"] == "pronto"
+    assert any("usato nvidia/nemotron-3-super" in x["messaggio"] for x in note.aperte(arch))
+    assert main(["motori", "prova", "testo"]) == 1
+    out = capsys.readouterr().out
+    assert "riserva nvidia/nemotron-3-super-120b-a12b: funziona, verrà usata in automatico" in out
+    FakeAPI.modello_rotto = None
+    assert aiuto.chiedi(arch, "come importo un rullino?")["modello"] == "nvidia/nemotron-3-ultra-550b-a55b"
+
+
+def test_chiave_errata_non_passa_alla_riserva(arch, api, monkeypatch):
+    from archiviofoto import ai
+    from archiviofoto.core import ErroreArchivio
+    chiamati = []
+
+    def finto(cfg_ai, body):
+        chiamati.append(body["model"])
+        raise ai.ErroreAPI("HTTP 401 (chiave non valida)", 401)
+    monkeypatch.setattr(ai, "_post", finto)
+    with pytest.raises(ErroreArchivio):
+        ai.chat_testo(configurazione.carica(arch)["ai"], [{"role": "user", "content": "x"}])
+    assert chiamati == ["nvidia/nemotron-3-ultra-550b-a55b"]
