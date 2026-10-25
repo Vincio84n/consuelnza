@@ -1,0 +1,177 @@
+[
+ {
+  "id": "primi-passi",
+  "titolo": "Primi passi: il flusso completo",
+  "categoria": "Tutorial",
+  "chiavi": "inizio cominciare flusso procedura ordine passi tutorial come si usa",
+  "testo": "Il lavoro si fa **un rullino alla volta**. Tutto si può fare dalla webapp (pagina **Lavori**) o dal terminale.\n1. **Prima volta**: in **Impostazioni** salva la chiave API NVIDIA e premi *Prova visione*. Poi scrivi le tue indicazioni in **Istruzioni**.\n2. **Numera la busta** e i negativi prima di scansionare: il numero di rullino diventa parte dell'ID.\n3. **Scansiona** il rullino in una cartella.\n4. **Lavori → Importa rullino** (oppure `archivio ingest <cartella> --rullino 42 --anno 1987`)\n5. **Lavori → Analisi tecnica**, poi **Lettura AI**, poi **Volti**\n6. **Annotazioni delle buste**: `archivio annota buste.csv`\n7. **Rullini**: controlla e correggi, spunta *verificata*\n8. **Lavori → XMP** e **Viste**\n9. Controlla **Note** e **Registro**\n\nLa pagina iniziale mostra sempre **Cosa fare adesso**, calcolato sullo stato reale dell'archivio."
+ },
+ {
+  "id": "installazione",
+  "titolo": "Installazione su Windows e macOS",
+  "categoria": "Installazione",
+  "chiavi": "installare setup python windows mac macos venv pip requisiti scaricare",
+  "testo": "**Versione consigliata, senza installare nulla:**\n- **Windows**: scarica `ArchivioFoto-Windows.zip`, estrai e apri `ArchivioFoto.exe`. Se compare *Windows ha protetto il PC*: *Ulteriori informazioni → Esegui comunque*.\n- **macOS** (Apple Silicon): scarica `ArchivioFoto-macOS.zip`, estrai, sposta `ArchivioFoto.app` in Applicazioni. Primo avvio: tasto destro → *Apri*; se non basta, *Impostazioni di Sistema → Privacy e sicurezza → Apri comunque*.\n\nAl primo avvio scegli (o crei) la cartella dell'archivio: il programma la ricorda.\n\n**Versione da sorgenti** (Mac Intel, Linux, uso avanzato): `ArchivioFoto-sorgenti.zip`, Python 3.10+ e lo script `installa-windows.bat` / `installa-mac.command`.\n\nIstruzioni complete in `INSTALLAZIONE.md` su GitHub."
+ },
+ {
+  "id": "chiave-api",
+  "titolo": "Configurare la chiave API NVIDIA",
+  "categoria": "Installazione",
+  "chiavi": "chiave api key nvidia nemotron token variabile ambiente 401 build.nvidia.com",
+  "testo": "La chiave si salva una volta sola, in uno di questi posti (il programma li cerca in quest'ordine):\n1. **Portachiavi del sistema** (consigliato): Gestione credenziali di Windows o Portachiavi di macOS. È protetto dal sistema.\n2. **File CHIAVE.md** nella cartella dell'archivio: testo in chiaro, comodo da spostare con l'archivio. **Non va mai condiviso né pubblicato.** Se l'archivio è dentro un repository Git, il programma lo esclude dai commit in automatico.\n3. Variabile d'ambiente `NVIDIA_API_KEY`.\n\nCome si salva:\n- Webapp: **Impostazioni → Chiave API**, incolla la chiave, scegli *Dove salvarla* e premi *Salva chiave*.\n- Terminale: `archivio chiave imposta` (portachiavi) oppure `archivio chiave imposta --file` (CHIAVE.md).\n\nPoi premi **Prova visione** e **Prova testo**, oppure `archivio motori prova`. Stato: `archivio chiave`. Rimozione: `archivio chiave rimuovi`.\n\nLa chiave non viene mai scritta in CONFIGURAZIONE.md né nel Registro. Errore **HTTP 401**: chiave errata o scaduta, da rigenerare su build.nvidia.com."
+ },
+ {
+  "id": "ingest",
+  "titolo": "Importare un rullino (ingest)",
+  "categoria": "Comandi",
+  "chiavi": "importare ingest scansioni copiare id nome file rullino busta fotogramma doppione",
+  "testo": "`archivio ingest <cartella> --rullino N [--anno AAAA] [--busta B12] [--pellicola \"Kodak Gold 200\"] [--primo 1]`\n\n- I file vengono ordinati per nome e numerati come fotogrammi.\n- Ogni foto riceve un **ID immutabile**: `ARC-1987-R042-F07`.\n- La copia viene verificata con l'hash e messa **in sola lettura**.\n- Un file già importato viene **saltato** e segnalato nelle note.\n- Un ID già esistente non viene mai sovrascritto: il comando si ferma.\n\nPer provare senza copiare nulla aggiungi `--dry-run`. Se il rullino è diviso in due cartelle, usa `--primo 19` per la seconda parte."
+ },
+ {
+  "id": "id-immutabile",
+  "titolo": "Perché i file non vengono rinominati",
+  "categoria": "Concetti",
+  "chiavi": "rinominare nome file id immutabile perché master originale",
+  "testo": "Il master mantiene per sempre il suo ID, che è il legame con il negativo fisico (busta e rullino).\n\nSe il nome dipendesse dai dati (luogo, persone), a ogni correzione cambierebbe e si romperebbero backup, collegamenti e riferimenti. Le rinomine che ti servono si fanno con le **viste**: vedi *Viste e rinomine*."
+ },
+ {
+  "id": "analizza",
+  "titolo": "Analisi tecnica",
+  "categoria": "Comandi",
+  "chiavi": "analizza tecnico colori palette bianco nero esposizione nitidezza dominante dpi risoluzione",
+  "testo": "`archivio analizza [--rullino N] [--forza]` misura per ogni foto:\n- dimensioni, megapixel, dpi, profondità colore\n- **B/N o colore**, saturazione, **dominante** (calda/fredda/neutra)\n- luminosità, contrasto, ombre chiuse e luci bruciate\n- **nitidezza** (indice di mosso o sfocato)\n- **palette** dei 6 colori principali\n- impronta visiva per *simili* e *doppioni*\n\nCalcola anche gli **allarmi di qualità**. `--forza` rifà le foto già analizzate."
+ },
+ {
+  "id": "allarmi-qualita",
+  "titolo": "Allarmi di qualità: cosa significano",
+  "categoria": "Note e allarmi",
+  "chiavi": "qualita sottoesposta sovraesposta mossa morbida luci bruciate negativo non invertito arancione risoluzione bassa",
+  "testo": "- **Sottoesposta / sovraesposta**: luminosità media fuori dall'intervallo normale. Spesso si risolve riscansionando o regolando l'esposizione dello scanner.\n- **Morbida o mossa**: indice di nitidezza basso. Può essere la foto originale o la messa a fuoco dello scanner: confronta con il negativo.\n- **Luci bruciate**: oltre il 5% dei pixel è bianco pieno.\n- **Negativo non invertito**: l'immagine ha la maschera arancione tipica del negativo colore. Va invertita (es. Negative Lab Pro) prima di archiviarla.\n- **Risoluzione bassa**: sotto i 6 MP, soglia regolabile in `archivio.json` → `qualita.megapixel_minimi`.\n\nSono indicazioni, non verdetti: chiudi l'allarme se la foto va bene così."
+ },
+ {
+  "id": "ai",
+  "titolo": "Lettura AI delle foto",
+  "categoria": "Comandi",
+  "chiavi": "ai intelligenza artificiale nemotron modello visione soggetti oggetti sfondo tag descrizione epoca tipo scatto",
+  "testo": "`archivio ai [--rullino N] [--forza] [--modello NOME]` invia una copia ridotta (1024 px) della foto a un modello di **visione** e salva: tipo di scatto, inquadratura, interno/esterno, persone, soggetti, oggetti, sfondo, testo visibile, epoca stimata, descrizione e tag.\n\nI dati dell'AI sono separati da quelli inseriti da te, e **le tue correzioni hanno sempre la precedenza**.\n\nServe un modello che legga le immagini: i Nemotron 3 solo testo non lo fanno. Dopo 3 errori di fila il comando si ferma."
+ },
+ {
+  "id": "modelli-ai",
+  "titolo": "Scegliere i motori AI (NVIDIA, Ollama, altri)",
+  "categoria": "Configurazione",
+  "chiavi": "modello cambiare ollama locale openrouter lm studio base_url configurazione archivio.json privacy",
+  "testo": "Il **motore selezionato** è quello scritto in CONFIGURAZIONE.md (o scelto in **Impostazioni**), ed è sempre il primo a essere usato.\nPredefiniti:\n- `modello_visione`: **nvidia/nemotron-3-ultra-550b-a55b**, il motore che legge le foto.\n- `modello_testo`: **nvidia/nemotron-3-ultra-550b-a55b**, l'assistente della guida.\n- `modello_testo_riserva`: **nvidia/nemotron-3-super-120b-a12b**, usato in automatico per l'assistente se Ultra ha problemi (sovraccarico, errore, non disponibile).\n- `modello_riserva`: **nvidia/nemotron-nano-12b-v2-vl**, modello di visione usato in automatico se il motore selezionato non riesce a leggere un'immagine.\n\nSe il motore selezionato fallisce su due foto di fila e la riserva funziona, per il resto della lettura il programma usa direttamente la riserva, così non spreca richieste. Lo annota nelle **Note**.\n\nComandi: `archivio motori elenca`, `archivio motori prova [visione|testo]`, `archivio motori usa visione NOME`. In Impostazioni: *Carica elenco modelli*, *Prova visione*, *Prova testo*.\n\nPer non inviare le foto all'esterno usa **Ollama** in locale (`indirizzo_api` = `http://localhost:11434/v1`)."
+ },
+ {
+  "id": "volti",
+  "titolo": "Riconoscimento dei volti",
+  "categoria": "Comandi",
+  "chiavi": "volti facce persone riconoscimento gruppi nominare nome opencv raggruppa anteprima",
+  "testo": "Il riconoscimento avviene **in locale**: nessuna foto esce dal computer.\n1. `archivio volti rileva` trova i volti (alla prima volta scarica i modelli, circa 40 MB).\n2. `archivio volti raggruppa` raggruppa i volti simili in G001, G002...\n3. `archivio volti anteprima` crea i ritagli in `viste/_volti/G001/`, per vedere chi è.\n4. `archivio volti nomina G001 \"Mario Rossi\"` dà il nome a tutto il gruppo.\n\nIl nome compare in ricerca, viste e XMP. Rilancia *raggruppa* dopo nuovi rilevamenti: i nomi restano.\n\nGruppi sbagliati? Alza `volti.soglia_somiglianza` in `archivio.json` per gruppi più severi, abbassala per unire di più."
+ },
+ {
+  "id": "annota",
+  "titolo": "Annotazioni delle buste (CSV)",
+  "categoria": "Comandi",
+  "chiavi": "annota csv excel buste annotazioni data luogo evento persone note importare",
+  "testo": "Trascrivi le scritte delle buste in un foglio Excel e salvalo come **CSV**:\n\n`rullino;fotogramma;data;luogo;evento;persone;note`\n\n- `rullino` è obbligatorio.\n- Se `fotogramma` è vuoto, la riga vale per **tutto il rullino**.\n- Più persone vanno separate da virgola.\n- Le colonne `busta`, `pellicola`, `formato`, `anno` aggiornano i dati fisici.\n\n`archivio annota buste.csv`. Le righe senza riscontro finiscono nelle note."
+ },
+ {
+  "id": "revisione",
+  "titolo": "Usare la pagina di revisione",
+  "categoria": "Webapp",
+  "chiavi": "revisione browser pagina correggere verificata salvare applica rullino webapp interfaccia",
+  "testo": "`archivio revisione` apre questa webapp. È raggiungibile **solo dal tuo computer**.\n- **Rullini**: l'elenco con l'avanzamento delle verifiche.\n- Ogni **scheda** mostra la miniatura (clic per ingrandire), i dati tecnici con la palette, la lettura AI, i volti e gli allarmi.\n- Correggi i campi e premi **Salva**. Un campo vuoto toglie il dato.\n- **Applica a tutto il rullino**: compila solo i campi comuni (es. luogo ed evento).\n- Spunta **verificata** quando la scheda è corretta.\n\nPer chiudere la webapp premi Ctrl+C nel terminale."
+ },
+ {
+  "id": "viste",
+  "titolo": "Viste e rinomine multiple",
+  "categoria": "Comandi",
+  "chiavi": "viste rinominare rinomina cartelle schema preset cronologico luogo tipologia persone link copia",
+  "testo": "`archivio viste <preset o schema> [--nome X] [--modo link|copia|symlink]`\n\nPreset: `cronologico`, `luogo`, `tipologia`, `persone`, `fisico`, `tecnico`.\n\nSchema libero, ad esempio: `archivio viste \"{anno}/{tipo}/{data}_{luogo}_{id}\" --nome per-tipo`\n\nCampi: id anno data rullino fotogramma busta formato pellicola luogo evento persone tipo ambiente epoca soggetto colore esposizione nitidezza.\n\nLe viste si **rigenerano** ogni volta e non toccano mai i master. Su NTFS e APFS non occupano spazio. Su chiavette FAT/exFAT diventano copie."
+ },
+ {
+  "id": "xmp",
+  "titolo": "XMP: usare i dati in Lightroom e digiKam",
+  "categoria": "Comandi",
+  "chiavi": "xmp iptc lightroom digikam bridge metadati sidecar parole chiave",
+  "testo": "`archivio xmp` scrive accanto a ogni master un file `.xmp` con titolo, descrizione, parole chiave, luogo, data e persone (standard IPTC).\n\nLightroom, digiKam e Bridge lo leggono in automatico. Rilancialo dopo ogni correzione."
+ },
+ {
+  "id": "cerca",
+  "titolo": "Ricerca, foto simili e doppioni",
+  "categoria": "Comandi",
+  "chiavi": "cerca ricerca trovare simili doppioni duplicati somiglianza esporta csv excel",
+  "testo": "- `archivio cerca chiesa matera`: cerca tutte le parole nei dati, nei tag e nei nomi dei volti.\n- `archivio simili ARC-1987-R042-F07`: foto con composizione e colori simili.\n- `archivio doppioni`: scansioni doppie o quasi identiche, registrate nelle note.\n- `archivio esporta indice.csv`: l'indice completo, che si apre in Excel."
+ },
+ {
+  "id": "note",
+  "titolo": "Note e allarmi",
+  "categoria": "Note e allarmi",
+  "chiavi": "note allarmi errori avvisi problemi registro risolvi chiudere aggiungere nota",
+  "testo": "Tutto quello che non ha funzionato finisce qui, ordinato per livello:\n- **errore**: qualcosa non è stato fatto (API, file illeggibile, master corrotto)\n- **attenzione**: da controllare (doppioni, CSV, disco, chiave assente)\n- **qualita**: problemi della singola foto\n- **nota**: appunti tuoi\n\nDa riga di comando: `archivio note`, `archivio note --livello errore`, `archivio note aggiungi \"testo\" --id ID`, `archivio note risolvi 4 7`.\n\nNella webapp, la pagina **Note e allarmi** permette di aggiungere e chiudere le note. Se una nota identica si ripete, cresce il contatore invece di creare un doppione."
+ },
+ {
+  "id": "verifica",
+  "titolo": "Controllo di salute dell'archivio",
+  "categoria": "Note e allarmi",
+  "chiavi": "verifica controllo integrità hash corrotto mancante spazio disco salute diagnosi",
+  "testo": "`archivio verifica [--hash] [--rete]` controlla:\n- versione di Python e moduli opzionali\n- presenza della chiave API (con `--rete` prova anche la chiamata)\n- spazio libero su disco\n- master mancanti, non in sola lettura, file senza scheda\n- con `--hash`: integrità di ogni file rispetto all'originale importato (lento)\n\nI problemi trovati finiscono nelle note. Eseguilo dopo ogni copia o spostamento dell'archivio."
+ },
+ {
+  "id": "backup",
+  "titolo": "Backup e spostamento dell'archivio",
+  "categoria": "Concetti",
+  "chiavi": "backup copia sicurezza spostare disco esterno nas cloud perdere dati",
+  "testo": "Copia **tutta** la cartella dell'archivio: `master/`, `dati/`, `note.json`, `archivio.json`. Le cartelle `viste/` e `cache/` si possono rigenerare.\n\nRegola 3-2-1: tre copie, su due supporti diversi, una fuori casa.\n\nDopo una copia esegui `archivio verifica --hash` sulla destinazione: confronta ogni file con l'impronta dell'originale."
+ },
+ {
+  "id": "problemi",
+  "titolo": "Risoluzione dei problemi frequenti",
+  "categoria": "Problemi",
+  "chiavi": "errore problema non funziona 401 404 429 timeout rete comando non trovato python raw permesso negato",
+  "testo": "- **`archivio` non trovato**: usa `.venv\\Scripts\\archivio` (Windows) o `.venv/bin/archivio` (Mac), oppure `python archivio.py`.\n- **Nessun archivio trovato**: entra nella cartella dell'archivio con `cd`, oppure crealo con `archivio init`.\n- **HTTP 401**: chiave API errata. **404**: nome del modello o URL sbagliato. **429**: troppe richieste, riprova più tardi.\n- **API non raggiungibile**: rete, proxy o firewall. Prova `archivio verifica --rete`.\n- **File RAW**: installa `pip install rawpy`.\n- **Volti**: installa `pip install opencv-python-headless`. Se il download dei modelli fallisce, la nota indica dove scaricarli a mano.\n- **Permesso negato su Windows**: i master sono in sola lettura per scelta. Non modificarli: correggi i dati.\n\nOgni errore resta registrato in **Note e allarmi** con il comando che l'ha causato.\n- **Configurazione non valida**: i comandi si fermano indicando la riga di CONFIGURAZIONE.md. Correggila a mano o dalla pagina Impostazioni (che si apre sempre).\n- **Portachiavi non disponibile**: usa la variabile d'ambiente `NVIDIA_API_KEY`.\n- **macOS: app danneggiata o non apribile**: Impostazioni di Sistema → Privacy e sicurezza → *Apri comunque*."
+ },
+ {
+  "id": "aiuti",
+  "titolo": "Suggerimenti, tutorial e assistente",
+  "categoria": "Webapp",
+  "chiavi": "suggerimenti tooltip finestre aiuto disattivare tutorial tour assistente chat domanda",
+  "testo": "- **Suggerimenti**: passando sopra un elemento con il simbolo ⓘ compare una spiegazione. Il pulsante *Suggerimenti* in alto li attiva o disattiva.\n- **Tutorial**: una visita guidata della pagina, passo per passo. Si avvia dal pulsante *Tutorial* e si può chiudere in qualsiasi momento.\n- **Guida e assistente** (pulsante *?* o tasto `/`): cerca negli articoli mentre scrivi. Con *Chiedi all'assistente* la domanda va al modello AI configurato, insieme agli articoli pertinenti e allo stato dell'archivio. Funziona solo con una chiave API valida; la ricerca negli articoli funziona sempre, anche offline."
+ },
+ {
+  "id": "configurazione",
+  "titolo": "CONFIGURAZIONE.md: tutte le scelte del programma",
+  "categoria": "Configurazione",
+  "chiavi": "configurazione impostazioni file md markdown scelte valori modificare porta soglia prefisso versione",
+  "testo": "Ogni scelta del programma è in **CONFIGURAZIONE.md**, nella cartella dell'archivio. Le righe `- nome: valore` sono le impostazioni; il resto (titoli, righe con `>`, note tue) è spiegazione.\n\nPuoi modificarla in tre modi equivalenti:\n- a mano, con un editor di testo;\n- dalla pagina **Impostazioni**;\n- da terminale: `archivio config imposta soglia_somiglianza=0.4`\n\nOgni modifica viene **controllata**: un valore non valido non viene salvato, oppure, se l'hai scritto a mano, blocca i comandi con l'indicazione della riga. Ogni modifica incrementa `versione_configurazione` e viene annotata nel **Registro**.\n\nPer vedere tutto: `archivio config`. Gli archivi creati con versioni precedenti vengono convertiti da `archivio.json` in automatico."
+ },
+ {
+  "id": "istruzioni",
+  "titolo": "ISTRUZIONI.md: le tue indicazioni per l'AI",
+  "categoria": "Configurazione",
+  "chiavi": "istruzioni indicazioni contesto regole vocabolario tag sinonimi vietati prompt rileggere obsolete",
+  "testo": "In **ISTRUZIONI.md** scrivi, in italiano, come il programma deve lavorare sul *tuo* archivio:\n- **Contesto dell'archivio**: chi, dove, quando. Viene passato all'AI con ogni foto.\n- **Regole per la lettura AI**: una per riga, con il trattino.\n- **Vocabolario dei tag**: `- chiesa: duomo, cattedrale`. I sinonimi vengono sostituiti dal termine scelto, così le ricerche funzionano.\n- **Tag da non usare**: tag troppo generici, scartati.\n\nOgni lettura AI registra la **versione delle istruzioni** usata. Se le cambi, le foto già lette risultano da rileggere: `archivio ai --obsolete`, oppure il pulsante nella pagina **Istruzioni**.\n\nPer vedere cosa arriva all'AI: `archivio istruzioni --prompt`."
+ },
+ {
+  "id": "registro",
+  "titolo": "REGISTRO.md: il diario delle operazioni",
+  "categoria": "Note e allarmi",
+  "chiavi": "registro log diario storico operazioni cronologia versione esito",
+  "testo": "**REGISTRO.md** riceve una riga per ogni operazione che cambia qualcosa: importazioni, analisi, letture AI, viste, verifiche, modifiche a configurazione, istruzioni e chiave (mai il valore della chiave).\n\nFormato: data · versione del programma · comando · dettagli · esito (✔ riuscito, ✖ errore, ⚠ interrotto).\n\nIl programma aggiunge solo righe e non cancella mai. Si consulta dalla pagina **Registro** o con `archivio registro -n 50`.\n\nDifferenza con le **Note**: il registro dice *cosa è stato fatto*; le note dicono *cosa va guardato*."
+ },
+ {
+  "id": "aggiornamenti",
+  "titolo": "Aggiornare il programma",
+  "categoria": "Installazione",
+  "chiavi": "aggiornare aggiornamento nuova versione changelog novità download github release",
+  "testo": "La webapp controlla una volta al giorno se su GitHub c'è una versione nuova e, se c'è, mostra un avviso in alto (si disattiva con `controlla_aggiornamenti: no`).\n\nDa terminale: `archivio aggiorna` mostra le novità e i link di download.\n\nPer aggiornare scarica il nuovo ZIP e sostituisci la cartella del programma. **L'archivio non viene toccato**: configurazione, istruzioni, registro e foto stanno nella cartella dell'archivio, non in quella del programma.\n\nLa versione in uso è in alto a destra nella webapp e in `archivio versione --log`."
+ },
+ {
+  "id": "lavori",
+  "titolo": "Pagina Lavori: usare il programma senza terminale",
+  "categoria": "Webapp",
+  "chiavi": "lavori eseguire comandi pulsanti avanzamento importare analizzare senza terminale sfoglia",
+  "testo": "La pagina **Lavori** esegue gli stessi comandi del terminale:\n1. **Importa rullino**: *Sfoglia…* apre la finestra di sistema per scegliere la cartella delle scansioni.\n2. **Analisi tecnica**\n3. **Lettura AI** (anche solo le foto con istruzioni vecchie)\n4. **Volti** (rileva e raggruppa)\n5. **XMP**\n6. **Viste**\n\nSi esegue un lavoro alla volta. Avanzamento e messaggi compaiono in tempo reale, e l'esito finisce nel **Registro** e, se ci sono errori, nelle **Note**.\n\nPer chiudere il programma usa il pulsante **Esci** in alto."
+ }
+]
