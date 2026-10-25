@@ -27,6 +27,8 @@ DEFAULT_CONFIG = {
         "base_url": "https://integrate.api.nvidia.com/v1",
         # Serve un modello VISIONE: i Nemotron 3 solo testo (es. nemotron-3-super) non leggono le immagini.
         "modello": "nvidia/nemotron-nano-12b-v2-vl",
+        # modello solo testo usato dall'assistente della guida
+        "modello_testo": "nvidia/nemotron-3-super-120b-a12b",
         "chiave_env": "NVIDIA_API_KEY",
         "lato_max_px": 1024,
         "timeout_s": 120,

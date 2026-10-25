@@ -21,5 +21,8 @@ archivio = "archiviofoto.cli:main"
 [tool.setuptools]
 packages = ["archiviofoto"]
 
+[tool.setuptools.package-data]
+archiviofoto = ["web/*"]
+
 [tool.setuptools.dynamic]
 version = {attr = "archiviofoto.__version__"}

@@ -3,6 +3,18 @@
 Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/). Numerazione [SemVer](https://semver.org/lang/it/).
 La versione in uso si vede con `archivio versione` (o `archivio versione --log` per questo registro), nell'interfaccia di revisione e nel campo `versione_tool` di ogni scheda JSON.
 
+## [0.3.0] - 2026-10-25
+### Aggiunto
+- **Guida integrata nella webapp**: 20 articoli (primi passi, installazione, ogni comando, note e allarmi, backup, risoluzione problemi), con pagina indice `/guida`.
+- **Suggerimenti a comparsa** (ⓘ) su campi, dati e allarmi, attivabili e disattivabili dal pulsante *Suggerimenti*. La scelta viene ricordata.
+- **Tutorial guidato** per ogni pagina (rullini, rullino, note, guida): evidenzia gli elementi e li spiega passo per passo. Parte da solo alla prima visita, si può disattivare e riavviare dal pulsante *Tutorial*.
+- **Motore di ricerca e assistente** (pulsante *? Guida* o tasto `/`): ricerca istantanea negli articoli, anche offline. *Chiedi* invia la domanda al modello AI (`ai.modello_testo`, default Nemotron 3 Super) insieme agli articoli pertinenti e allo stato dell'archivio. La conversazione resta tra una pagina e l'altra e cita gli articoli usati.
+- **Cosa fare adesso**: riquadro nella pagina iniziale con i prossimi passi calcolati sullo stato reale dell'archivio, ciascuno con il comando da eseguire e il link all'articolo della guida.
+- Istruzioni di installazione passo per passo (`INSTALLAZIONE.md`) e README principale del repository.
+
+### Modificato
+- La grafica della webapp è ora in file separati (`archiviofoto/web/`), con tema chiaro e scuro automatico e layout adatto al telefono.
+
 ## [0.2.0] - 2026-10-25
 ### Aggiunto
 - **Note e allarmi** (`archivio note`, pagina "Note e allarmi" nella revisione): registro unico di errori, avvisi, problemi di qualità e note manuali, con stato aperto/chiuso e conteggio delle ripetizioni. Ogni errore di un comando viene registrato in automatico.

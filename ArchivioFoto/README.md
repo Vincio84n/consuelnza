@@ -13,6 +13,8 @@ Versione e novità: [CHANGELOG.md](CHANGELOG.md) oppure `archivio versione --log
 > Una scansione non contiene l'EXIF dello scatto originale (tempo, diaframma, data). Quei dati arrivano dalle buste o dalle tue correzioni, non dal file.
 
 ## Installazione
+Guida passo per passo, con i problemi frequenti: **[INSTALLAZIONE.md](INSTALLAZIONE.md)**. In breve:
+
 Serve Python 3.10 o successivo ([python.org](https://www.python.org/downloads/); su Windows spunta "Add Python to PATH").
 
 - **Windows**: doppio clic su `installa-windows.bat`, poi nel terminale `.venv\Scripts\archivio --help`
@@ -61,8 +63,19 @@ archivio verifica --hash --rete                # controllo completo: ambiente, m
 ```
 Una nota identica ancora aperta non viene duplicata: aumenta il contatore delle ripetizioni. Le note si gestiscono anche dalla pagina "Note e allarmi" dell'interfaccia di revisione.
 
-## Interfaccia di revisione
-`archivio revisione` avvia un piccolo server locale (`http://127.0.0.1:8765`, raggiungibile solo dal tuo computer) e apre il browser. Per ogni rullino mostra miniature, dati tecnici con palette, lettura AI, volti e allarmi. Puoi correggere i campi, applicarli a tutto il rullino e spuntare "verificata".
+## Webapp di revisione, guida e assistente
+`archivio revisione` avvia un piccolo server locale (`http://127.0.0.1:8765`, raggiungibile solo dal tuo computer) e apre il browser.
+- **Cosa fare adesso**: i prossimi passi, calcolati sullo stato dell'archivio, con il comando da eseguire.
+- **Rullini**: per ogni foto miniatura, dati tecnici con palette, lettura AI, volti e allarmi. Puoi correggere i campi, applicarli a tutto il rullino e spuntare "verificata".
+- **Suggerimenti** (ⓘ): finestre di spiegazione al passaggio del mouse, disattivabili dal pulsante in alto.
+- **Tutorial**: visita guidata di ogni pagina. Parte da sola alla prima visita e si può disattivare.
+- **? Guida** (tasto `/`): motore di ricerca negli articoli mentre scrivi, che funziona anche offline. **Chiedi** apre una conversazione con l'assistente AI, che risponde con i comandi da usare basandosi sulla guida e sullo stato del tuo archivio. Usa `ai.modello_testo` e richiede la chiave API.
+
+| Tutorial | Suggerimenti | Guida e assistente |
+|---|---|---|
+| ![Tutorial](docs/tutorial.jpg) | ![Suggerimenti](docs/suggerimenti.jpg) | ![Guida e assistente](docs/guida-assistente.jpg) |
+
+*Immagini di prova: le foto sono sintetiche e la risposta dell'assistente viene da un server di test.*
 
 ## Volti
 Elaborati in locale con OpenCV: le foto non vengono inviate all'esterno. Alla prima esecuzione scarica i modelli (~40 MB) nella cartella `modelli/`.

@@ -1,6 +1,7 @@
 import json
 import os
 import threading
+import urllib.error
 import urllib.parse
 import urllib.request
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -193,6 +194,13 @@ def test_revisione_web(arch):
         urllib.request.urlopen(url + "salva-rullino", data=data).read()
         assert all(rec(arch, i)["umano"]["evento"] == "Gita" for i in IDS)
         assert "Note e allarmi" in urllib.request.urlopen(url + "note").read().decode()
+        assert "Indice della guida" in urllib.request.urlopen(url + "guida").read().decode()
+        assert b"avviaTour" in urllib.request.urlopen(url + "static/app.js").read()
+        assert len(json.loads(urllib.request.urlopen(url + "static/guida.json").read())) >= 15
+        with pytest.raises(urllib.error.HTTPError):
+            urllib.request.urlopen(url + "static/..%2F__init__.py")
+        passi = json.loads(urllib.request.urlopen(url + "api/passi").read())
+        assert any("lettura AI" in p["testo"] for p in passi)
     finally:
         srv.shutdown()
         srv.server_close()
@@ -210,3 +218,53 @@ def test_volti_pipeline(arch):
     assert all("volti" in rec(arch, i) for i in IDS)
     assert main(["volti", "raggruppa"]) == 0
     assert main(["volti", "nomina", "G001", "Anna"]) == 1  # nessun gruppo: errore registrato
+
+
+def test_guida_ricerca_e_passi(arch):
+    from archiviofoto import aiuto
+    ids = {a["id"] for a in aiuto.articoli()}
+    assert {"primi-passi", "installazione", "note", "volti", "problemi"} <= ids
+    assert aiuto.cerca("come rinomino i file per luogo")[0]["id"] in ("viste", "id-immutabile")
+    assert aiuto.cerca("errore 401 chiave")[0]["id"] in ("chiave-api", "problemi")
+    testi = " ".join(p["testo"] for p in aiuto.prossimi_passi(arch))
+    assert "senza analisi tecnica" in testi and "da verificare" in testi
+
+
+class FakeChat(BaseHTTPRequestHandler):
+    def do_POST(self):
+        body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+        ok = "Viste e rinomine" in body["messages"][0]["content"] and body["model"] == "nvidia/nemotron-3-super-120b-a12b"
+        data = json.dumps({"choices": [{"message": {"content": "<think>x</think>Usa `archivio viste luogo`" if ok else "contesto mancante"}}]}).encode()
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(data)
+
+    def log_message(self, *a):
+        pass
+
+
+def test_assistente(arch, monkeypatch):
+    from archiviofoto.revisione import avvia
+    srv_ai = HTTPServer(("127.0.0.1", 0), FakeChat)
+    threading.Thread(target=srv_ai.serve_forever, daemon=True).start()
+    srv, url = avvia(arch, porta=0, apri=False)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+
+    def chiedi(d):
+        req = urllib.request.Request(url + "api/chiedi", data=json.dumps({"domanda": d}).encode(), headers={"Content-Type": "application/json"})
+        return json.loads(urllib.request.urlopen(req).read())
+    try:
+        monkeypatch.delenv("NVIDIA_API_KEY", raising=False)
+        r = chiedi("come rinomino per luogo?")
+        assert "NVIDIA_API_KEY" in r["errore"]  # senza chiave: errore chiaro, la ricerca offline resta disponibile
+        assert any("assistente" in x["messaggio"] for x in note.aperte(arch))
+        cfg = json.loads((arch / "archivio.json").read_text(encoding="utf-8"))
+        cfg["ai"]["base_url"] = f"http://127.0.0.1:{srv_ai.server_address[1]}/v1"
+        (arch / "archivio.json").write_text(json.dumps(cfg), encoding="utf-8")
+        r = chiedi("come rinomino i file per luogo?")
+        assert r["risposta"] == "Usa `archivio viste luogo`"
+        assert any(f["id"] == "viste" for f in r["fonti"])
+    finally:
+        srv.shutdown()
+        srv.server_close()
+        srv_ai.shutdown()

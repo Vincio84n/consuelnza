@@ -1,0 +1,64 @@
+:root{--bg:#f7f6f3;--fg:#1d1d1b;--mut:#6b6a65;--card:#fff;--bd:#dedcd5;--acc:#2f5d8a;--acc-fg:#fff;--err:#b3261e;--warn:#9a6700;--ok:#2e7d32;
+  --pop:#1f2a36;--pop-fg:#f3f6f9;--shade:rgba(10,12,16,.55);--code:#eceae4}
+@media (prefers-color-scheme:dark){:root{--bg:#18181a;--fg:#ececea;--mut:#9d9c97;--card:#232326;--bd:#38383c;--acc:#7fb0e0;--acc-fg:#10161d;
+  --err:#f2867e;--warn:#e0b44c;--ok:#7cc883;--pop:#e9eef4;--pop-fg:#14191f;--shade:rgba(0,0,0,.65);--code:#2d2d31}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:var(--acc)}
+header{position:sticky;top:0;z-index:20;display:flex;gap:14px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--bd);background:var(--bg);flex-wrap:wrap}
+header nav{display:flex;gap:14px;flex-wrap:wrap}header nav a{text-decoration:none}
+header .spazio{flex:1}
+main{padding:16px;max-width:1400px;margin:auto}
+h2{margin:.2em 0 .6em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:12px}
+.card img{width:100%;border-radius:4px;background:#0002;display:block}
+.mut{color:var(--mut);font-size:13px}
+label{display:block;font-size:12px;color:var(--mut);margin-top:6px}
+input,select,textarea{width:100%;padding:6px 8px;border:1px solid var(--bd);border-radius:5px;background:var(--bg);color:var(--fg);font:inherit}
+button,.btn{display:inline-block;margin-top:8px;padding:6px 14px;border:0;border-radius:5px;background:var(--acc);color:var(--acc-fg);font:inherit;cursor:pointer;text-decoration:none}
+button.sec{background:transparent;color:var(--fg);border:1px solid var(--bd)}
+header button{margin:0;padding:4px 10px;font-size:14px}
+button[aria-pressed="false"]{opacity:.6}
+.ok{color:var(--ok)}.errore{color:var(--err)}.attenzione,.qualita{color:var(--warn)}
+table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid var(--bd);padding:6px;text-align:left;vertical-align:top}
+.tabella{overflow-x:auto}
+.pal span{display:inline-block;width:16px;height:16px;border-radius:3px;margin-right:2px;border:1px solid var(--bd);vertical-align:middle}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.92em;word-break:break-word}
+.passi li{margin:6px 0}
+
+/* Suggerimenti: marcatore ⓘ visibile solo se attivi */
+body.aiuti-on [data-aiuto]:not(input):not(select):not(textarea)::after{content:" ⓘ";color:var(--acc);font-size:.85em;cursor:help}
+.popup{position:fixed;z-index:60;max-width:300px;padding:9px 12px;border-radius:7px;background:var(--pop);color:var(--pop-fg);font-size:13px;line-height:1.45;
+  box-shadow:0 6px 24px rgba(0,0,0,.25);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s}
+.popup.on{opacity:1;transform:none}
+.popup::before{content:"";position:absolute;left:var(--freccia,18px);top:-6px;border:6px solid transparent;border-top:0;border-bottom-color:var(--pop)}
+.popup.sopra::before{top:auto;bottom:-6px;border-bottom:0;border-top:6px solid var(--pop)}
+
+/* Tutorial */
+.tour-evidenza{position:fixed;z-index:70;border-radius:8px;box-shadow:0 0 0 9999px var(--shade);outline:2px solid var(--acc);transition:all .25s;pointer-events:none}
+.tour-box{position:fixed;z-index:71;width:min(340px,calc(100vw - 32px));background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.tour-box h3{margin:0 0 6px;font-size:16px}.tour-box p{margin:0 0 10px}
+.tour-box .riga{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.tour-box label{display:flex;gap:6px;align-items:center;margin:8px 0 0;font-size:12px}.tour-box label input{width:auto}
+
+/* Pannello guida e assistente */
+.pannello{position:fixed;z-index:50;top:0;right:0;height:100%;width:min(460px,100vw);background:var(--card);border-left:1px solid var(--bd);
+  box-shadow:-8px 0 30px rgba(0,0,0,.18);display:flex;flex-direction:column;transform:translateX(105%);transition:transform .2s}
+.pannello.aperto{transform:none}
+.pannello .testa{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--bd)}
+.pannello .testa strong{flex:1}
+.pannello .corpo{flex:1;overflow:auto;padding:12px 14px}
+.pannello .piede{border-top:1px solid var(--bd);padding:10px 14px}
+.pannello .piede form{display:flex;gap:6px}.pannello .piede input{flex:1}.pannello .piede button{margin:0}
+.risultato{display:block;width:100%;text-align:left;background:transparent;color:var(--fg);border:1px solid var(--bd);margin:0 0 6px;padding:8px 10px}
+.risultato small{display:block;color:var(--mut)}
+.articolo h3{margin-top:0}.articolo ol,.articolo ul{padding-left:20px}
+.msg{margin:8px 0;padding:8px 10px;border-radius:8px}
+.msg.utente{white-space:pre-wrap}.msg p{margin:.3em 0}.msg ol,.msg ul{margin:.3em 0;padding-left:20px}
+.msg.utente{background:var(--bg);border:1px solid var(--bd);margin-left:30px}
+.msg.assistente{background:var(--code)}
+.msg.errore{border:1px solid var(--err)}
+.chip{display:inline-block;margin:4px 4px 0 0;padding:2px 8px;border:1px solid var(--bd);border-radius:999px;font-size:12px;cursor:pointer;background:transparent;color:var(--fg)}
+@media (max-width:600px){header{gap:8px}main{padding:12px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
