@@ -1,0 +1,4 @@
+numpy>=1.24
+Pillow>=10
+# opzionale, per leggere i RAW (DNG/NEF/CR2...)
+# rawpy>=0.19
