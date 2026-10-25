@@ -8,9 +8,9 @@ Strumenti di lavoro.
 | [**VgdV Card**](VgdV_Card/) | App Android per scansionare biglietti da visita e salvarli in rubrica | Android | [README](VgdV_Card/README.md) |
 
 ## ArchivioFoto in breve
-1. Scarica il repository: **Code → Download ZIP**, ed estrailo.
+1. Scarica lo ZIP ed estrailo: **[Windows](https://github.com/Vincio84n/consuelnza/releases/download/archiviofoto/ArchivioFoto-Windows.zip)** · **[macOS](https://github.com/Vincio84n/consuelnza/releases/download/archiviofoto/ArchivioFoto-macOS.zip)**
 2. Installa Python 3.10+ da [python.org](https://www.python.org/downloads/) (su Windows spunta *Add to PATH*).
 3. Nella cartella `ArchivioFoto`, doppio clic su `installa-windows.bat` (Windows) o tasto destro → Apri su `installa-mac.command` (macOS).
-4. `archivio init <cartella-archivio>`, poi `archivio revisione`: si apre il browser con tutorial e guida.
+4. Su Windows doppio clic su `avvia-windows.bat`, poi `archivio init <cartella-archivio>`, poi `archivio revisione`: si apre il browser con tutorial e guida.
 
 Istruzioni complete: [ArchivioFoto/INSTALLAZIONE.md](ArchivioFoto/INSTALLAZIONE.md) · Manuale: [ArchivioFoto/README.md](ArchivioFoto/README.md) · Versioni: [ArchivioFoto/CHANGELOG.md](ArchivioFoto/CHANGELOG.md)

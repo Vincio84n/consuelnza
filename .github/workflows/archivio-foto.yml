@@ -29,3 +29,26 @@ jobs:
         run: python -m pytest -v tests
       - name: Comando installato
         run: archivio --version
+
+  release:
+    # Pacchetto scaricabile: si aggiorna a ogni push con i test verdi su tutti i sistemi
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Crea gli ZIP e pubblica la Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(grep -oP '__version__ = "\K[^"]+' ArchivioFoto/archiviofoto/__init__.py)
+          zip -qr ArchivioFoto-Windows.zip ArchivioFoto -x 'ArchivioFoto/tests/*' 'ArchivioFoto/installa-mac.command' '*/__pycache__/*'
+          zip -qr ArchivioFoto-macOS.zip ArchivioFoto -x 'ArchivioFoto/tests/*' 'ArchivioFoto/*.bat' '*/__pycache__/*'
+          { echo "## Download"; echo "- **Windows**: ArchivioFoto-Windows.zip"; echo "- **macOS**: ArchivioFoto-macOS.zip"; echo; \
+            echo "Estrai lo ZIP e segui ArchivioFoto/INSTALLAZIONE.md (build ${GITHUB_SHA::7})."; echo; \
+            cat ArchivioFoto/CHANGELOG.md; } > notes.md
+          gh release delete archiviofoto --yes --cleanup-tag -R "$GITHUB_REPOSITORY" || true
+          gh release create archiviofoto ArchivioFoto-Windows.zip ArchivioFoto-macOS.zip -R "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" --title "ArchivioFoto v$VERSION" --notes-file notes.md --latest=false

@@ -2,18 +2,13 @@
 
 Tempo richiesto: circa 10 minuti. Serve una connessione a Internet solo per l'installazione, per la lettura AI e per il primo download dei modelli dei volti.
 
-## 1. Scarica il programma da GitHub
-**Senza Git (consigliato):**
-1. Apri la pagina del repository su GitHub.
-2. Pulsante verde **Code** → **Download ZIP**.
-3. Estrai lo ZIP in una cartella stabile, ad esempio `C:\Programmi\ArchivioFoto` oppure `~/Applicazioni/ArchivioFoto`.
-4. Il programma è nella sottocartella **`ArchivioFoto`**.
+## 1. Scarica il programma
+- **Windows**: https://github.com/Vincio84n/consuelnza/releases/download/archiviofoto/ArchivioFoto-Windows.zip
+- **macOS**: https://github.com/Vincio84n/consuelnza/releases/download/archiviofoto/ArchivioFoto-macOS.zip
 
-**Con Git:**
-```bash
-git clone https://github.com/Vincio84n/consuelnza.git
-cd consuelnza/ArchivioFoto
-```
+Estrai lo ZIP in una cartella stabile, ad esempio `C:\ArchivioFoto` oppure `~/Applicazioni`. Il programma è nella cartella **`ArchivioFoto`**. Tutte le versioni: https://github.com/Vincio84n/consuelnza/releases/tag/archiviofoto
+
+**Con Git**, in alternativa: `git clone https://github.com/Vincio84n/consuelnza.git`
 
 ## 2. Installa Python (una volta sola)
 Serve **Python 3.10 o successivo**.
@@ -40,7 +35,7 @@ Serve **Python 3.10 o successivo**.
 Lo script crea l'ambiente isolato `.venv` dentro la cartella del programma: non tocca il resto del sistema. Per disinstallare basta cancellare la cartella.
 
 ## 4. Apri il terminale nella cartella giusta
-- **Windows**: in Esplora file apri la cartella `ArchivioFoto`, clicca sulla barra dell'indirizzo, scrivi `cmd` e premi Invio.
+- **Windows**: doppio clic su **`avvia-windows.bat`**: si apre un terminale dove il comando `archivio` funziona già. In alternativa, in Esplora file apri la cartella `ArchivioFoto`, clicca sulla barra dell'indirizzo, scrivi `cmd` e premi Invio.
 - **macOS**: tasto destro sulla cartella `ArchivioFoto` → *Servizi* → *Nuovo Terminale nella cartella*.
 
 Verifica l'installazione:
@@ -72,7 +67,7 @@ archivio revisione                 # apre la webapp nel browser, con tutorial e 
 Alla prima apertura parte un **tutorial** guidato. Il pulsante **? Guida** (o il tasto `/`) apre la ricerca negli articoli e l'assistente.
 
 ## 7. Aggiornare
-- **ZIP**: scarica il nuovo ZIP, sostituisci la cartella del programma ed esegui di nuovo lo script di installazione. L'archivio delle foto è in un'altra cartella e non viene toccato.
+- **ZIP**: scarica il nuovo ZIP dagli stessi link, sostituisci la cartella del programma ed esegui di nuovo lo script di installazione. L'archivio delle foto è in un'altra cartella e non viene toccato.
 - **Git**: `git pull`, poi di nuovo lo script di installazione.
 
 Cosa è cambiato tra una versione e l'altra: [CHANGELOG.md](CHANGELOG.md), oppure `archivio versione --log`.
