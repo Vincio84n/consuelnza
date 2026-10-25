@@ -7,7 +7,7 @@ name = "archiviofoto"
 dynamic = ["version"]
 description = "Catalogazione di un archivio di negativi scansionati: analisi tecnica, AI, volti, viste e note."
 requires-python = ">=3.10"
-dependencies = ["numpy>=1.24", "Pillow>=10"]
+dependencies = ["numpy>=1.24", "Pillow>=10", "keyring>=24"]
 
 [project.optional-dependencies]
 volti = ["opencv-python-headless>=4.8"]

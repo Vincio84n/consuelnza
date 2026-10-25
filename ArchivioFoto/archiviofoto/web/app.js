@@ -25,6 +25,11 @@
     if (lista) out.push("</" + lista + ">");
     return out.join("");
   }
+  var TOKEN = (document.querySelector('meta[name="token"]') || {}).content || "";
+  function api(percorso, dati) {
+    return fetch(percorso, {method: "POST", headers: {"Content-Type": "application/json", "X-Token": TOKEN}, body: JSON.stringify(dati || {})})
+      .then(function (r) { return r.json(); });
+  }
   function norm(s) { return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
 
   /* ---------- Suggerimenti (finestre a comparsa, disattivabili) ---------- */
@@ -151,8 +156,7 @@
     chat.push({ruolo: "utente", testo: domanda});
     mostraElenco(); corpo.insertAdjacentHTML("beforeend", '<p class="mut" id="attesa">L\'assistente sta rispondendo…</p>');
     corpo.scrollTop = 0;
-    fetch("/api/chiedi", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({domanda: domanda, storia: storia})})
-      .then(function (r) { return r.json(); })
+    api("/api/chiedi", {domanda: domanda, storia: storia})
       .then(function (d) {
         if (d.errore) {
           var art = cercaGuida(domanda).slice(0, 3).map(function (a) { return {id: a.id, titolo: a.titolo}; });
@@ -195,6 +199,63 @@
     else if (e.key === "/" && !inCampo) { e.preventDefault(); apriPannello(); }
   });
   applicaAiuti();
+
+  /* ---------- Esci ---------- */
+  $("#btn-esci").addEventListener("click", function () {
+    if (!confirm("Chiudere ArchivioFoto? Un lavoro in corso verrebbe interrotto.")) return;
+    api("/api/esci").then(function () {
+      document.body.innerHTML = '<main><h2>ArchivioFoto è chiuso</h2><p>Puoi chiudere questa scheda. Per riaprirlo, avvia di nuovo il programma.</p></main>';
+    });
+  });
+
+  /* ---------- Impostazioni: elenco e prova dei motori ---------- */
+  var esitoMotori = $("#esito-motori");
+  function prova(ruolo) {
+    esitoMotori.textContent = "Prova " + ruolo + " in corso… (può richiedere fino a un minuto)";
+    api("/api/prova", {ruolo: ruolo}).then(function (e) {
+      esitoMotori.innerHTML = '<span class="' + (e.ok ? "ok" : "errore") + '">' + (e.ok ? "✔ Funziona" : "✖ Non funziona") + "</span> · " +
+        esc(e.modello) + " · " + e.secondi + " s<br>" + esc(e.dettaglio);
+    }).catch(function (x) { esitoMotori.textContent = "Errore: " + x; });
+  }
+  if (esitoMotori) {
+    $("#btn-prova-visione").addEventListener("click", function () { prova("visione"); });
+    $("#btn-prova-testo").addEventListener("click", function () { prova("testo"); });
+    $("#btn-modelli").addEventListener("click", function () {
+      var out = $("#elenco-modelli"); out.textContent = "Carico l'elenco…";
+      api("/api/modelli").then(function (d) {
+        if (d.errore) { out.innerHTML = '<span class="errore">' + esc(d.errore) + "</span>"; return; }
+        $("#modelli").innerHTML = d.modelli.map(function (m) { return '<option value="' + esc(m.id) + '">' + (m.visione ? "visione" : "testo") + "</option>"; }).join("");
+        var vis = d.modelli.filter(function (m) { return m.visione; });
+        out.innerHTML = d.modelli.length + " modelli disponibili, " + vis.length + " probabilmente di visione. Ora i campi «modello» propongono l'elenco mentre scrivi.<br>" +
+          vis.slice(0, 12).map(function (m) { return "<code>" + esc(m.id) + "</code>"; }).join(" ");
+      });
+    });
+  }
+
+  /* ---------- Lavori: avanzamento in tempo reale ---------- */
+  var log = $("#lav-log");
+  if (log) {
+    var sfoglia = $("#btn-sfoglia");
+    if (sfoglia) sfoglia.addEventListener("click", function () {
+      sfoglia.disabled = true;
+      api("/api/sfoglia").then(function (d) { if (d.cartella) $("#cartella").value = d.cartella; }).then(function () { sfoglia.disabled = false; });
+    });
+    var aggiorna = function () {
+      fetch("/api/lavoro").then(function (r) { return r.json(); }).then(function (s) {
+        var fine = s.codice === null ? "" : (s.codice === 0 ? " — completato ✔" : " — terminato con errori ✖ (vedi Note)");
+        $("#lav-titolo").textContent = s.titolo ? (s.attivo ? "In corso: " : "Ultimo lavoro: ") + s.titolo + fine : "Nessun lavoro in corso";
+        var barra = $("#lav-barra");
+        if (s.totale) { barra.max = s.totale; barra.value = Math.min(s.fatti, s.totale); } else if (s.attivo) { barra.removeAttribute("value"); } else { barra.max = 1; barra.value = s.titolo ? 1 : 0; }
+        var giu = log.scrollTop + log.clientHeight >= log.scrollHeight - 20;
+        log.textContent = s.righe.join("\n");
+        if (giu) log.scrollTop = log.scrollHeight;
+        $$("#lavori-schede button, form[action='/lavori/avvia'] button").forEach(function (b) { if (b.type !== "button") b.disabled = s.attivo; });
+        if (s.attivo) setTimeout(aggiorna, 1000);
+      });
+    };
+    aggiorna();
+    document.addEventListener("submit", function () { setTimeout(aggiorna, 800); });
+  }
 
   var pagina = document.body.dataset.pagina || "pagina";
   var visti = store.get("tour-visti", {});

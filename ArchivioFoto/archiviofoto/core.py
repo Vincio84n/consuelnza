@@ -15,28 +15,11 @@ from . import __version__
 
 Image.MAX_IMAGE_PIXELS = None  # le scansioni a 4000+ dpi superano il limite di default
 
-CONFIG_FILE = "archivio.json"
+CONFIG_FILE = "CONFIGURAZIONE.md"
+CONFIG_VECCHIO = "archivio.json"  # archivi creati con la 0.2/0.3, migrati in automatico
 IMG_EXT = {".tif", ".tiff", ".jpg", ".jpeg", ".png", ".dng", ".nef", ".cr2", ".cr3", ".arw", ".orf", ".raf", ".rw2"}
 RAW_EXT = {".dng", ".nef", ".cr2", ".cr3", ".arw", ".orf", ".raf", ".rw2"}
 LIST_FIELDS = ("persone", "tag")
-
-DEFAULT_CONFIG = {
-    "prefisso": "ARC",
-    "ai": {
-        # Qualsiasi endpoint OpenAI-compatibile: NVIDIA build.nvidia.com, OpenRouter, Ollama, LM Studio...
-        "base_url": "https://integrate.api.nvidia.com/v1",
-        # Serve un modello VISIONE: i Nemotron 3 solo testo (es. nemotron-3-super) non leggono le immagini.
-        "modello": "nvidia/nemotron-nano-12b-v2-vl",
-        # modello solo testo usato dall'assistente della guida
-        "modello_testo": "nvidia/nemotron-3-super-120b-a12b",
-        "chiave_env": "NVIDIA_API_KEY",
-        "lato_max_px": 1024,
-        "timeout_s": 120,
-    },
-    "volti": {"soglia_somiglianza": 0.363},
-    "qualita": {"megapixel_minimi": 6, "luci_bruciate_max_pct": 5},
-}
-
 
 class ErroreArchivio(Exception):
     """Errore previsto, con messaggio per l'utente."""
@@ -49,20 +32,14 @@ def now():
 def find_root(start=None):
     p = Path(start or os.getcwd()).resolve()
     for d in [p, *p.parents]:
-        if (d / CONFIG_FILE).exists():
+        if (d / CONFIG_FILE).exists() or (d / CONFIG_VECCHIO).exists():
             return d
     raise ErroreArchivio(f"Nessun archivio trovato (manca {CONFIG_FILE}). Esegui prima: archivio init <cartella>")
 
 
-def load_config(root):
-    cfg = json.loads((root / CONFIG_FILE).read_text(encoding="utf-8"))
-    merged_cfg = json.loads(json.dumps(DEFAULT_CONFIG))
-    for k, v in cfg.items():
-        if isinstance(v, dict) and isinstance(merged_cfg.get(k), dict):
-            merged_cfg[k].update(v)
-        else:
-            merged_cfg[k] = v
-    return merged_cfg
+def load_config(root, rigoroso=True):
+    from .configurazione import carica
+    return carica(root, rigoroso)
 
 
 def sha256(path):

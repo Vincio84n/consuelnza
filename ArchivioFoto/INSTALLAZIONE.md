@@ -1,87 +1,63 @@
 # Installazione di ArchivioFoto
 
-Tempo richiesto: circa 10 minuti. Serve una connessione a Internet solo per l'installazione, per la lettura AI e per il primo download dei modelli dei volti.
+## Download
+| Sistema | File | Serve Python? |
+|---|---|---|
+| **Windows 10/11** | [ArchivioFoto-Windows.zip](https://github.com/Vincio84n/consuelnza/releases/download/archiviofoto/ArchivioFoto-Windows.zip) | No |
+| **macOS Apple Silicon** (M1, M2, M3, M4) | [ArchivioFoto-macOS.zip](https://github.com/Vincio84n/consuelnza/releases/download/archiviofoto/ArchivioFoto-macOS.zip) | No |
+| Mac Intel, Linux, uso da terminale | [ArchivioFoto-sorgenti.zip](https://github.com/Vincio84n/consuelnza/releases/download/archiviofoto/ArchivioFoto-sorgenti.zip) | Sì, 3.10+ |
 
-## 1. Scarica il programma
-- **Windows**: https://github.com/Vincio84n/consuelnza/releases/download/archiviofoto/ArchivioFoto-Windows.zip
-- **macOS**: https://github.com/Vincio84n/consuelnza/releases/download/archiviofoto/ArchivioFoto-macOS.zip
+Tutte le versioni e le novità: https://github.com/Vincio84n/consuelnza/releases/tag/archiviofoto
 
-Estrai lo ZIP in una cartella stabile, ad esempio `C:\ArchivioFoto` oppure `~/Applicazioni`. Il programma è nella cartella **`ArchivioFoto`**. Tutte le versioni: https://github.com/Vincio84n/consuelnza/releases/tag/archiviofoto
+## Windows
+1. Scarica **ArchivioFoto-Windows.zip** ed estrailo: tasto destro → *Estrai tutto…*, ad esempio in `C:\ArchivioFoto`. Non avviarlo dall'interno dello ZIP.
+2. Apri la cartella `ArchivioFoto` e fai doppio clic su **ArchivioFoto.exe**.
+3. Se compare *"Windows ha protetto il PC"*: **Ulteriori informazioni → Esegui comunque**. Succede perché il programma non è firmato digitalmente.
+4. Si apre una finestra nera: è il motore del programma e **deve restare aperta**. Al primo avvio compare la finestra per **scegliere la cartella dell'archivio**: scegline una vuota per crearne uno nuovo.
+5. Si apre il browser con la webapp e parte il tutorial.
 
-**Con Git**, in alternativa: `git clone https://github.com/Vincio84n/consuelnza.git`
+Per comodità: tasto destro su `ArchivioFoto.exe` → *Mostra altre opzioni* → *Crea collegamento*, poi sposta il collegamento sul Desktop.
 
-## 2. Installa Python (una volta sola)
-Serve **Python 3.10 o successivo**.
+## macOS
+1. Scarica **ArchivioFoto-macOS.zip** e aprilo: compare **ArchivioFoto.app**. Trascinala in **Applicazioni**.
+2. Primo avvio: **tasto destro → Apri → Apri**.
+3. Se macOS non lo permette (macOS 15 e successivi): *Impostazioni di Sistema → Privacy e sicurezza*, in fondo **Apri comunque**, poi conferma.
+4. Scegli la cartella dell'archivio. Si apre il browser con la webapp.
 
-### Windows
-1. Scarica Python da https://www.python.org/downloads/
-2. Avvia l'installer e **spunta "Add python.exe to PATH"** in basso, poi *Install Now*.
-3. Controlla: apri *Prompt dei comandi* e scrivi `py --version` (deve rispondere `Python 3.x`).
+Il programma resta attivo in background: per chiuderlo usa il pulsante **Esci** nella webapp. Se qualcosa non parte, il file `~/Library/Application Support/ArchivioFoto/ultimo-avvio.log` contiene i messaggi.
 
-### macOS
-1. Scarica Python da https://www.python.org/downloads/ e installa il pacchetto `.pkg`.
-2. Controlla: apri *Terminale* e scrivi `python3 --version`.
+## Prima configurazione (5 minuti, dalla webapp)
+1. **Impostazioni → Chiave API**: crea una chiave su https://build.nvidia.com (inizia con `nvapi-`), incollala e premi *Salva chiave*. Viene salvata nel **portachiavi del sistema** (Gestione credenziali di Windows, Portachiavi di macOS), mai nei file.
+2. **Impostazioni → Motori AI**: *Carica elenco modelli*, scegli i modelli e premi **Prova visione** e **Prova testo**.
+3. **Istruzioni**: descrivi l'archivio (chi, dove, quando) e le parole da usare nei tag.
+4. **Lavori → Importa rullino**: sei pronto.
 
-## 3. Installa ArchivioFoto
-### Windows
-1. Apri la cartella `ArchivioFoto` ed esegui con doppio clic **`installa-windows.bat`**.
-2. Se compare *"Windows ha protetto il PC"*: **Ulteriori informazioni → Esegui comunque**.
-3. Attendi il messaggio *Installato*.
+Tutte le scelte finiscono nei file **CONFIGURAZIONE.md** e **ISTRUZIONI.md** della cartella dell'archivio, e ogni operazione nel **REGISTRO.md**.
 
-### macOS
-1. Nella cartella `ArchivioFoto`: **tasto destro su `installa-mac.command` → Apri → Apri**. Serve solo la prima volta, perché lo script non è firmato.
-2. Attendi il messaggio *Installato*.
+## Aggiornare
+La webapp avvisa quando su GitHub c'è una versione nuova. Scarica lo ZIP e sostituisci la cartella del programma (Windows) o l'app (macOS). **L'archivio non viene toccato**: foto, dati, configurazione, istruzioni e registro stanno nella cartella dell'archivio.
 
-Lo script crea l'ambiente isolato `.venv` dentro la cartella del programma: non tocca il resto del sistema. Per disinstallare basta cancellare la cartella.
+## Versione da sorgenti (Mac Intel, Linux, uso avanzato)
+1. Installa Python 3.10+ da https://www.python.org/downloads/ (su Windows spunta *Add python.exe to PATH*).
+2. Estrai **ArchivioFoto-sorgenti.zip**.
+3. Esegui `installa-windows.bat` (Windows) oppure `installa-mac.command` (macOS: tasto destro → Apri).
+4. Avvia con `avvia-windows.bat`, oppure da terminale: `.venv/bin/archivio app` (macOS/Linux) o `.venv\Scripts\archivio app` (Windows).
 
-## 4. Apri il terminale nella cartella giusta
-- **Windows**: doppio clic su **`avvia-windows.bat`**: si apre un terminale dove il comando `archivio` funziona già. In alternativa, in Esplora file apri la cartella `ArchivioFoto`, clicca sulla barra dell'indirizzo, scrivi `cmd` e premi Invio.
-- **macOS**: tasto destro sulla cartella `ArchivioFoto` → *Servizi* → *Nuovo Terminale nella cartella*.
+In alternativa con Git: `git clone https://github.com/Vincio84n/consuelnza.git`
 
-Verifica l'installazione:
-```bat
-:: Windows
-.venv\Scripts\archivio --version
-```
-```bash
-# macOS
-.venv/bin/archivio --version
-```
-
-Per non scrivere ogni volta il percorso, attiva l'ambiente: `.venv\Scripts\activate` (Windows) o `source .venv/bin/activate` (macOS). Da quel momento basta scrivere `archivio`.
-
-## 5. Configura la chiave API NVIDIA (per la lettura AI e l'assistente)
-1. Accedi a https://build.nvidia.com e crea una API key (inizia con `nvapi-`).
-2. **Windows**: `setx NVIDIA_API_KEY "nvapi-LA-TUA-CHIAVE"`, poi **chiudi e riapri** il terminale.
-3. **macOS**: `echo 'export NVIDIA_API_KEY=nvapi-LA-TUA-CHIAVE' >> ~/.zshrc`, poi chiudi e riapri il Terminale.
-
-Senza chiave tutto il resto funziona: analisi tecnica, volti, revisione, guida e ricerca negli articoli.
-
-## 6. Crea l'archivio e fai la prova
-```bash
-archivio init D:\Archivio          # macOS: archivio init ~/Archivio
-cd D:\Archivio
-archivio verifica --rete           # controlla installazione, chiave e connessione
-archivio revisione                 # apre la webapp nel browser, con tutorial e guida
-```
-Alla prima apertura parte un **tutorial** guidato. Il pulsante **? Guida** (o il tasto `/`) apre la ricerca negli articoli e l'assistente.
-
-## 7. Aggiornare
-- **ZIP**: scarica il nuovo ZIP dagli stessi link, sostituisci la cartella del programma ed esegui di nuovo lo script di installazione. L'archivio delle foto è in un'altra cartella e non viene toccato.
-- **Git**: `git pull`, poi di nuovo lo script di installazione.
-
-Cosa è cambiato tra una versione e l'altra: [CHANGELOG.md](CHANGELOG.md), oppure `archivio versione --log`.
+## Uso da terminale
+Lo stesso eseguibile funziona anche da riga di comando: `ArchivioFoto.exe --help` (Windows), oppure `/Applications/ArchivioFoto.app/Contents/MacOS/ArchivioFoto --help` (macOS). Comandi utili: `config`, `chiave`, `motori`, `istruzioni`, `registro`, `aggiorna`.
 
 ## Problemi frequenti
 | Sintomo | Soluzione |
 |---|---|
-| `py` o `python3` non trovato | Reinstalla Python spuntando *Add to PATH* (Windows) |
-| `archivio` non trovato | Usa `.venv\Scripts\archivio` / `.venv/bin/archivio`, oppure attiva l'ambiente (punto 4) |
-| *Nessun archivio trovato* | Entra nella cartella dell'archivio con `cd` o creala con `archivio init` |
-| Errore HTTP 401 | Chiave API errata, oppure terminale non riaperto dopo `setx` |
-| Il browser non si apre | Apri a mano l'indirizzo che compare nel terminale (`http://127.0.0.1:8765/`) |
-| Porta già in uso | `archivio revisione --porta 8800` |
-| File RAW non letti | `.venv\Scripts\pip install rawpy` (Windows) / `.venv/bin/pip install rawpy` (macOS) |
-| Mac: "impossibile aprire, sviluppatore non identificato" | Tasto destro → Apri, invece del doppio clic |
+| "Windows ha protetto il PC" | Ulteriori informazioni → Esegui comunque |
+| macOS: "impossibile aprire" o "app danneggiata" | Privacy e sicurezza → Apri comunque |
+| Il browser non si apre | Apri a mano `http://127.0.0.1:8765/` |
+| Porta occupata | Il programma prova da solo le porte successive (8766, 8767…) |
+| Chiave rifiutata (HTTP 401) | Ricreala su build.nvidia.com e salvala di nuovo in Impostazioni |
+| "Configurazione non valida" | Apri Impostazioni: indica la riga e il valore da correggere |
+| Voglio cambiare archivio | Avvia con `ArchivioFoto app --scegli` oppure dal terminale `ArchivioFoto app <cartella>` |
+| Antivirus blocca l'exe | Falso positivo frequente con i programmi non firmati: aggiungi un'eccezione per la cartella |
 
-Ogni errore del programma resta registrato: `archivio note` oppure la pagina **Note e allarmi** della webapp.
+Ogni errore resta registrato nella pagina **Note** e nel file **REGISTRO.md**.

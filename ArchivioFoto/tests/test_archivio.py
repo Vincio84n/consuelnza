@@ -139,9 +139,7 @@ class FakeAI(BaseHTTPRequestHandler):
 def fake_ai(arch, monkeypatch):
     srv = HTTPServer(("127.0.0.1", 0), FakeAI)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
-    cfg = json.loads((arch / "archivio.json").read_text(encoding="utf-8"))
-    cfg["ai"]["base_url"] = f"http://127.0.0.1:{srv.server_address[1]}/v1"
-    (arch / "archivio.json").write_text(json.dumps(cfg), encoding="utf-8")
+    assert main(["config", "imposta", f"indirizzo_api=http://127.0.0.1:{srv.server_address[1]}/v1"]) == 0
     FakeAI.risposte = []
     yield
     srv.shutdown()
@@ -186,17 +184,18 @@ def test_revisione_web(arch):
         assert IDS[0] in page and "negativo" in page
         img = urllib.request.urlopen(url + f"img/{IDS[0]}?s=200").read()
         assert img[:2] == b"\xff\xd8"
-        data = urllib.parse.urlencode({"id": IDS[0], "luogo": "Matera", "persone": "Anna, Luca", "verificato": "on"}).encode()
+        from archiviofoto.revisione import STATO
+        data = urllib.parse.urlencode({"id": IDS[0], "luogo": "Matera", "persone": "Anna, Luca", "verificato": "on", "_t": STATO["token"]}).encode()
         urllib.request.urlopen(url + "salva", data=data).read()
         u = rec(arch, IDS[0])["umano"]
         assert u["luogo"] == "Matera" and u["persone"] == ["Anna", "Luca"] and u["verificato"]
-        data = urllib.parse.urlencode({"rullino": "42", "r_evento": "Gita"}).encode()
+        data = urllib.parse.urlencode({"rullino": "42", "r_evento": "Gita", "_t": STATO["token"]}).encode()
         urllib.request.urlopen(url + "salva-rullino", data=data).read()
         assert all(rec(arch, i)["umano"]["evento"] == "Gita" for i in IDS)
         assert "Note e allarmi" in urllib.request.urlopen(url + "note").read().decode()
         assert "Indice della guida" in urllib.request.urlopen(url + "guida").read().decode()
         assert b"avviaTour" in urllib.request.urlopen(url + "static/app.js").read()
-        assert len(json.loads(urllib.request.urlopen(url + "static/guida.json").read())) >= 15
+        assert len(json.loads(urllib.request.urlopen(url + "static/guida.json").read())) >= 20
         with pytest.raises(urllib.error.HTTPError):
             urllib.request.urlopen(url + "static/..%2F__init__.py")
         passi = json.loads(urllib.request.urlopen(url + "api/passi").read())
@@ -251,16 +250,16 @@ def test_assistente(arch, monkeypatch):
     threading.Thread(target=srv.serve_forever, daemon=True).start()
 
     def chiedi(d):
-        req = urllib.request.Request(url + "api/chiedi", data=json.dumps({"domanda": d}).encode(), headers={"Content-Type": "application/json"})
+        from archiviofoto.revisione import STATO
+        req = urllib.request.Request(url + "api/chiedi", data=json.dumps({"domanda": d}).encode(),
+                                     headers={"Content-Type": "application/json", "X-Token": STATO["token"]})
         return json.loads(urllib.request.urlopen(req).read())
     try:
         monkeypatch.delenv("NVIDIA_API_KEY", raising=False)
         r = chiedi("come rinomino per luogo?")
-        assert "NVIDIA_API_KEY" in r["errore"]  # senza chiave: errore chiaro, la ricerca offline resta disponibile
+        assert "chiave API mancante" in r["errore"]  # senza chiave: errore chiaro, la ricerca offline resta disponibile
         assert any("assistente" in x["messaggio"] for x in note.aperte(arch))
-        cfg = json.loads((arch / "archivio.json").read_text(encoding="utf-8"))
-        cfg["ai"]["base_url"] = f"http://127.0.0.1:{srv_ai.server_address[1]}/v1"
-        (arch / "archivio.json").write_text(json.dumps(cfg), encoding="utf-8")
+        assert main(["config", "imposta", f"indirizzo_api=http://127.0.0.1:{srv_ai.server_address[1]}/v1"]) == 0
         r = chiedi("come rinomino i file per luogo?")
         assert r["risposta"] == "Usa `archivio viste luogo`"
         assert any(f["id"] == "viste" for f in r["fonti"])

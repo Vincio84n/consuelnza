@@ -43,6 +43,14 @@ def prossimi_passi(root):
         return [{"testo": "L'archivio è vuoto: importa il primo rullino.", "comando": "archivio ingest <cartella> --rullino 1 --anno AAAA", "guida": "ingest"}]
     recs = [load_rec(root, i) for i in ids]
     passi = []
+    from . import chiavi, istruzioni
+    cfg = load_config(root, rigoroso=False)
+    if cfg["_problemi"]:
+        passi.append({"testo": "La configurazione ha valori non validi: i comandi sono bloccati finché non li correggi.",
+                      "link": "/impostazioni", "guida": "configurazione"})
+    if chiavi.richiesta(cfg["ai"]) and not chiavi.leggi(cfg["ai"])[0]:
+        passi.append({"testo": "Chiave API NVIDIA non impostata: la lettura AI e l'assistente non funzionano.",
+                      "link": "/impostazioni", "guida": "chiave-api"})
     errori = note.aperte(root, livello="errore")
     if errori:
         passi.append({"testo": f"{len(errori)} errori aperti: qualcosa non è stato completato.", "link": "/note", "guida": "note"})
@@ -69,6 +77,11 @@ def prossimi_passi(root):
     senza_nome = {f["gruppo"] for r in recs for f in r.get("volti", []) if f.get("gruppo") and not f.get("nome")}
     if senza_nome:
         passi.append({"testo": f"{len(senza_nome)} gruppi di volti senza nome.", "comando": "archivio volti anteprima", "guida": "volti"})
+    versione = istruzioni.carica(root)["versione"]
+    vecchie = sum(1 for r in recs if r["ai"] and r["ai"].get("istruzioni") != versione)
+    if vecchie:
+        passi.append({"testo": f"{vecchie} foto lette con istruzioni diverse da quelle attuali.", "comando": "archivio ai --obsolete",
+                      "link": "/istruzioni", "guida": "istruzioni"})
     qual = note.aperte(root, livello="qualita")
     if qual:
         passi.append({"testo": f"{len(qual)} allarmi di qualità da valutare.", "link": "/note", "guida": "allarmi-qualita"})
@@ -99,7 +112,7 @@ Non inventare comandi o opzioni che non compaiono negli articoli."""
 
 def chiedi(root, domanda, storia=None):
     from .ai import _post
-    cfg = load_config(root)
+    cfg = load_config(root, rigoroso=False)
     fonti = cerca(domanda) or articoli()[:2]
     contesto = "\n\n".join(f"## {a['titolo']}\n{a['testo']}" for a in fonti)
     passi = "\n".join(f"- {p['testo']} {p.get('comando', '')}" for p in prossimi_passi(root))

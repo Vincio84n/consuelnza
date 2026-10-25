@@ -30,25 +30,75 @@ jobs:
       - name: Comando installato
         run: archivio --version
 
-  release:
-    # Pacchetto scaricabile: si aggiorna a ogni push con i test verdi su tutti i sistemi
+  eseguibile:
+    # App autonoma (nessun Python da installare), compilata e provata sul sistema reale
     needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: ArchivioFoto
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installa
+        run: python -m pip install ".[volti]" pyinstaller
+      - name: Compila
+        run: python build_app.py
+      - name: Prova l'eseguibile (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          EXE=dist/ArchivioFoto/ArchivioFoto.exe
+          "$EXE" --version
+          "$EXE" init "$RUNNER_TEMP/prova"
+          cd "$RUNNER_TEMP/prova" && "$GITHUB_WORKSPACE/ArchivioFoto/$EXE" config && "$GITHUB_WORKSPACE/ArchivioFoto/$EXE" verifica
+          "$GITHUB_WORKSPACE/ArchivioFoto/$EXE" versione --log | head -3
+          cd "$GITHUB_WORKSPACE/ArchivioFoto" && powershell -Command "Compress-Archive -Path dist/ArchivioFoto -DestinationPath ArchivioFoto-Windows.zip"
+      - name: Prova l'eseguibile (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          EXE=dist/ArchivioFoto.app/Contents/MacOS/ArchivioFoto
+          "$EXE" --version
+          "$EXE" init "$RUNNER_TEMP/prova"
+          (cd "$RUNNER_TEMP/prova" && "$GITHUB_WORKSPACE/ArchivioFoto/$EXE" config && "$GITHUB_WORKSPACE/ArchivioFoto/$EXE" verifica)
+          "$EXE" versione --log | head -3
+          ditto -c -k --keepParent dist/ArchivioFoto.app ArchivioFoto-macOS.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ runner.os }}
+          path: ArchivioFoto/ArchivioFoto-*.zip
+
+  release:
+    # Pubblica a ogni push con test ed eseguibili verdi
+    needs: eseguibile
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Crea gli ZIP e pubblica la Release
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: app-*
+          merge-multiple: true
+      - name: Pubblica la Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION=$(grep -oP '__version__ = "\K[^"]+' ArchivioFoto/archiviofoto/__init__.py)
-          zip -qr ArchivioFoto-Windows.zip ArchivioFoto -x 'ArchivioFoto/tests/*' 'ArchivioFoto/installa-mac.command' '*/__pycache__/*'
-          zip -qr ArchivioFoto-macOS.zip ArchivioFoto -x 'ArchivioFoto/tests/*' 'ArchivioFoto/*.bat' '*/__pycache__/*'
-          { echo "## Download"; echo "- **Windows**: ArchivioFoto-Windows.zip"; echo "- **macOS**: ArchivioFoto-macOS.zip"; echo; \
-            echo "Estrai lo ZIP e segui ArchivioFoto/INSTALLAZIONE.md (build ${GITHUB_SHA::7})."; echo; \
+          zip -qr ArchivioFoto-sorgenti.zip ArchivioFoto -x 'ArchivioFoto/tests/*' '*/__pycache__/*'
+          { echo "## Download"; \
+            echo "- **Windows**: ArchivioFoto-Windows.zip → estrai e apri ArchivioFoto.exe (nessuna installazione)"; \
+            echo "- **macOS** (Apple Silicon M1/M2/M3/M4): ArchivioFoto-macOS.zip → estrai e apri ArchivioFoto.app"; \
+            echo "- **Sorgenti** (Mac Intel, Linux o uso da riga di comando): ArchivioFoto-sorgenti.zip"; echo; \
+            echo "Istruzioni: ArchivioFoto/INSTALLAZIONE.md (build ${GITHUB_SHA::7})."; echo; \
             cat ArchivioFoto/CHANGELOG.md; } > notes.md
           gh release delete archiviofoto --yes --cleanup-tag -R "$GITHUB_REPOSITORY" || true
-          gh release create archiviofoto ArchivioFoto-Windows.zip ArchivioFoto-macOS.zip -R "$GITHUB_REPOSITORY" \
+          gh release create archiviofoto ArchivioFoto-Windows.zip ArchivioFoto-macOS.zip ArchivioFoto-sorgenti.zip -R "$GITHUB_REPOSITORY" \
             --target "$GITHUB_SHA" --title "ArchivioFoto v$VERSION" --notes-file notes.md --latest=false

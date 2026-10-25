@@ -3,6 +3,24 @@
 Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/). Numerazione [SemVer](https://semver.org/lang/it/).
 La versione in uso si vede con `archivio versione` (o `archivio versione --log` per questo registro), nell'interfaccia di revisione e nel campo `versione_tool` di ogni scheda JSON.
 
+## [0.4.0] - 2026-10-25
+### Aggiunto
+- **CONFIGURAZIONE.md**: tutte le scelte del programma in un file Markdown leggibile, modificabile a mano, dalla webapp (*Impostazioni*) o con `archivio config imposta`. Ogni valore viene controllato: un errore indica la riga e blocca i comandi invece di essere ignorato. La versione della configurazione aumenta a ogni modifica.
+- **Motori NVIDIA**: tre ruoli (visione, testo, riserva automatica). `archivio motori elenca` legge i modelli disponibili dall'API; `motori prova` fa una chiamata reale e misura tempi ed esito; `motori usa` cambia il modello. Gli stessi pulsanti sono nella pagina Impostazioni.
+- **Chiave API nel portachiavi del sistema** (Windows e macOS): `archivio chiave imposta|stato|rimuovi`, oppure dalla webapp. Non viene mai scritta nei file né nel registro; se la si scrive in CONFIGURAZIONE.md viene rifiutata.
+- **ISTRUZIONI.md**: contesto dell'archivio e regole passati all'AI, vocabolario controllato dei tag (i sinonimi vengono uniformati) e tag vietati. Ogni lettura AI registra la versione delle istruzioni; `archivio ai --obsolete` rilegge le foto lette con istruzioni vecchie.
+- **REGISTRO.md**: diario in sola aggiunta di ogni operazione (comando, dettagli, esito, versione del programma) e di ogni modifica a configurazione, istruzioni e chiave.
+- **Aggiornamenti**: `archivio aggiorna` e avviso nella webapp quando su GitHub c'è una versione nuova.
+- **Eseguibile autonomo** per Windows (`ArchivioFoto.exe`) e macOS Apple Silicon (`ArchivioFoto.app`): non serve installare Python. Al primo avvio chiede la cartella dell'archivio e la ricorda.
+- **Pagina Lavori**: importazione (con *Sfoglia…*), analisi, lettura AI, volti, XMP, viste, verifica e doppioni dalla webapp, con avanzamento in tempo reale. Pulsante **Esci**.
+- Pagine **Impostazioni**, **Istruzioni** e **Registro**; nuovi articoli della guida.
+- **Sicurezza della webapp**: token di sessione su tutte le richieste che modificano dati e blocco degli host non locali.
+
+### Modificato
+- `archivio.json` sostituito da CONFIGURAZIONE.md, con migrazione automatica.
+- La lettura AI si ferma dopo `errori_consecutivi_max` errori di fila (configurabile).
+- "Cosa fare adesso" segnala anche chiave mancante, configurazione non valida e foto con istruzioni vecchie.
+
 ## [0.3.0] - 2026-10-25
 ### Aggiunto
 - **Guida integrata nella webapp**: 20 articoli (primi passi, installazione, ogni comando, note e allarmi, backup, risoluzione problemi), con pagina indice `/guida`.

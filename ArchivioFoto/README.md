@@ -13,19 +13,32 @@ Versione e novità: [CHANGELOG.md](CHANGELOG.md) oppure `archivio versione --log
 > Una scansione non contiene l'EXIF dello scatto originale (tempo, diaframma, data). Quei dati arrivano dalle buste o dalle tue correzioni, non dal file.
 
 ## Installazione
-Guida passo per passo, con i problemi frequenti: **[INSTALLAZIONE.md](INSTALLAZIONE.md)**. In breve:
+**[INSTALLAZIONE.md](INSTALLAZIONE.md)**. In breve: scarica [ArchivioFoto-Windows.zip](https://github.com/Vincio84n/consuelnza/releases/download/archiviofoto/ArchivioFoto-Windows.zip) o [ArchivioFoto-macOS.zip](https://github.com/Vincio84n/consuelnza/releases/download/archiviofoto/ArchivioFoto-macOS.zip), estrai e fai doppio clic. Non serve Python.
 
-Serve Python 3.10 o successivo ([python.org](https://www.python.org/downloads/); su Windows spunta "Add Python to PATH").
+## I file dell'archivio
+| File | Cosa contiene | Chi lo scrive |
+|---|---|---|
+| `CONFIGURAZIONE.md` | tutte le scelte: motori NVIDIA, soglie, porta, viste… | tu (a mano o da Impostazioni) |
+| `ISTRUZIONI.md` | contesto, regole e vocabolario per l'AI | tu |
+| `REGISTRO.md` | diario di ogni operazione e modifica, con esito e versione | il programma (solo aggiunte) |
+| `note.json` | errori e allarmi aperti/chiusi | il programma e tu |
+| `master/`, `dati/` | foto originali e schede JSON | il programma |
 
-- **Windows**: doppio clic su `installa-windows.bat`, poi nel terminale `.venv\Scripts\archivio --help`
-- **macOS**: doppio clic su `installa-mac.command` (la prima volta: tasto destro → Apri), poi `.venv/bin/archivio --help`
-- **Manuale**: `pip install ".[volti]"` (aggiungi `raw` per i file DNG/NEF/CR2: `".[volti,raw]"`)
+La **chiave API** non sta in nessun file: è nel portachiavi del sistema (`archivio chiave imposta` o pagina Impostazioni).
 
-Senza installazione: `python archivio.py <comando>` dalla cartella del programma.
-
-Chiave API NVIDIA (da https://build.nvidia.com):
-- Windows: `setx NVIDIA_API_KEY "nvapi-..."` (poi riapri il terminale)
-- macOS: aggiungi `export NVIDIA_API_KEY=nvapi-...` a `~/.zshrc`
+## Configurazione dei motori
+```bash
+archivio chiave imposta                 # chiede la chiave nvapi-... senza mostrarla
+archivio motori elenca                  # modelli disponibili con la tua chiave
+archivio motori usa visione meta/llama-3.2-11b-vision-instruct
+archivio motori usa riserva nvidia/nemotron-nano-12b-v2-vl
+archivio motori prova                   # chiamata reale: esito e tempi
+archivio config                         # tutte le impostazioni
+archivio config imposta soglia_somiglianza=0.4
+archivio istruzioni --prompt            # cosa viene aggiunto alla richiesta AI
+archivio registro -n 20
+archivio aggiorna
+```
 
 ## Flusso per rullino
 ```bash
@@ -33,7 +46,7 @@ archivio init D:\Archivio            # oppure /Users/me/Archivio
 cd D:\Archivio
 archivio ingest E:\scansioni\busta12 --rullino 42 --anno 1987 --busta B12 --pellicola "Kodak Gold 200"
 archivio analizza --rullino 42       # dati tecnici + allarmi di qualità + impronta visiva
-archivio ai --rullino 42             # tipo di scatto, soggetti, oggetti, sfondo, testo, epoca, tag
+archivio ai --rullino 42             # segue ISTRUZIONI.md; --obsolete rilegge le foto con istruzioni vecchie
 archivio volti rileva --rullino 42
 archivio annota buste.csv            # annotazioni delle buste
 archivio revisione                   # si apre il browser: controlli e correggi rullino per rullino
